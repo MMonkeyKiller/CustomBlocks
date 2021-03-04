@@ -1,6 +1,5 @@
 package me.monkeykiller.customblocks;
 
-import com.sun.istack.internal.NotNull;
 import de.tr7zw.nbtapi.NBTItem;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -9,9 +8,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
 public class ItemUtils {
-    public static boolean isAirOrNull(@NotNull ItemStack item) throws NullPointerException {
+    public static boolean isAirOrNull(ItemStack item) throws NullPointerException {
         try {
-            return item.getType() == Material.AIR;
+            return item.getType() == Material.AIR && item != null;
         } catch (NullPointerException err) {
             return true;
         }
@@ -30,15 +29,15 @@ public class ItemUtils {
                 : inv.getItemInOffHand().equals(item) ? EquipmentSlot.OFF_HAND : null;
     }
 
-    public static boolean hasSilkTouch(@NotNull ItemStack item) {
+    public static boolean hasSilkTouch(ItemStack item) {
         return item.containsEnchantment(Enchantment.SILK_TOUCH);
     }
 
-    public static boolean checkItemId(@NotNull ItemStack item, String id) {
+    public static boolean checkItemId(ItemStack item, String id) {
         return getItemId(item) != null && getItemId(item).equalsIgnoreCase(id);
     }
 
-    public static String getItemId(@NotNull ItemStack item) {
+    public static String getItemId(ItemStack item) {
         return new NBTItem(item).getString("ItemId");
     }
 }
