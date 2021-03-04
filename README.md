@@ -1,0 +1,17 @@
+# CustomBlock
+
+Custom Blocks for Spigot/PaperMC.
+
+This project is inspired on *Origin Realms* Custom Block System
+
+**Only 1.16.5 (NMS, it can be changed later)**
+
+Contributions of any kind are welcome, with the [all-contributors](https://allcontributors.org/) specification.
+
+---
+
+## Contributors
+
+_None_
+
+_Coded by MonkeyKiller (c) 2021_
