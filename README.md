@@ -8,7 +8,7 @@ This project is inspired on *Origin Realms* Custom Block System
 
 Contributions of any kind are welcome, with the [all-contributors](https://allcontributors.org/) specification.
 
----
+_Dependencies: [NBT-API](https://www.spigotmc.org/resources/nbt-api.7939/)_
 
 ## Contributors
 
