@@ -28,10 +28,11 @@ import org.bukkit.util.RayTraceResult;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class Events implements Listener {
 
-    private final Main plugin;
+    public Main plugin;
 
     public Events(Main plugin) {
         this.plugin = plugin;
@@ -95,7 +96,7 @@ public class Events implements Listener {
     @EventHandler
     public void onPlayerInteractBlock(PlayerInteractEvent event) throws NullPointerException {
         if (!event.getAction().equals(Action.RIGHT_CLICK_BLOCK)
-                || !event.getClickedBlock().getType().equals(Material.NOTE_BLOCK))
+                || !Objects.requireNonNull(event.getClickedBlock()).getType().equals(Material.NOTE_BLOCK))
             return;
         event.setCancelled(true);
         PlayerInventory inv = event.getPlayer().getInventory();
@@ -121,8 +122,8 @@ public class Events implements Listener {
 
             RayTraceResult rtr = pblock.getWorld().rayTraceBlocks(eyeLoc,
                     event.getPlayer().getLocation().getDirection(), 8, FluidCollisionMode.NEVER, true);
-
-            Location interactionPoint = rtr.getHitPosition().subtract(rtr.getHitBlock().getLocation().toVector())
+            if (rtr == null) return;
+            Location interactionPoint = rtr.getHitPosition().subtract(Objects.requireNonNull(rtr.getHitBlock()).getLocation().toVector())
                     .toLocation(event.getPlayer().getWorld());
 
             if (Tag.STAIRS.isTagged(item.getType())) {
@@ -152,6 +153,7 @@ public class Events implements Listener {
 
     private void customBlockPlaceCheck(BlockPlaceEvent event) {
         ItemStack item = ItemUtils.getBlockInHand(event.getPlayer().getInventory());
+        if (item == null) return;
 
         if (ItemUtils.isAirOrNull(item) || item.getType() != Material.BARRIER)
             return;
@@ -202,7 +204,7 @@ public class Events implements Listener {
                 CustomBlock CB = CustomBlock.getCustomBlockbyData((NoteBlock) b.getBlockData());
                 if (CB == null)
                     return;
-                CB.mine(new BlockBreakEvent(b, null));
+                CB.mine(new BlockBreakEvent(b, b.getWorld().getPlayers().get(0)));
                 // b.getDrops().add(new ItemStack(Material.DIAMOND));
             }
     }
