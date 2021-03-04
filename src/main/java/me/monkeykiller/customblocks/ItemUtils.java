@@ -6,17 +6,18 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.jetbrains.annotations.NotNull;
 
 public class ItemUtils {
-    public static boolean isAirOrNull(ItemStack item) throws NullPointerException {
+    public static boolean isAirOrNull(@NotNull ItemStack item) throws NullPointerException {
         try {
-            return item.getType() == Material.AIR && item != null;
+            return item.getType() == Material.AIR;
         } catch (NullPointerException err) {
             return true;
         }
     }
 
-    public static ItemStack getBlockInHand(PlayerInventory inv) {
+    public static ItemStack getBlockInHand(@NotNull PlayerInventory inv) {
         return inv.getItemInMainHand().getType().isBlock() && inv.getItemInMainHand().getType() != Material.AIR
                 ? inv.getItemInMainHand()
                 : inv.getItemInOffHand().getType().isBlock() && inv.getItemInOffHand().getType() != Material.AIR
