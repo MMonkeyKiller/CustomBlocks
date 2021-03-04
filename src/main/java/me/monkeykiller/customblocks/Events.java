@@ -48,8 +48,14 @@ public class Events implements Listener {
             updateAndCheck(b.getLocation());
             if (Tag.DOORS.isTagged(b.getType()) && b.getBlockData() instanceof Door) {
                 Door data = (Door) b.getBlockData();
-                if (data.getHalf().equals(Bisected.Half.TOP))
+                if (data.getHalf().equals(Bisected.Half.TOP)) {
+                    // FIX: Door update issue
+                    Door d = (Door) bottomBlock.getBlockData();
+                    d.setOpen(data.isOpen());
+                    bottomBlock.setBlockData(d);
+                    //
                     bottomBlock.getState().update(true, false);
+                }
             }
             event.setCancelled(true);
         }
