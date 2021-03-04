@@ -1,0 +1,8 @@
+name: CustomBlocks
+version: ${project.version}
+main: me.monkeykiller.customblocks.Main
+api-version: 1.13
+authors: [ MonkeyKiller ]
+website: https://github.com/MMonkeyKiller
+
+depend: [ NBTAPI ]
