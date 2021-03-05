@@ -25,6 +25,14 @@ public class ItemUtils {
                 : null;
     }
 
+    public static ItemStack getMaterialInHand(@NotNull PlayerInventory inv, @NotNull Material mat) {
+        return inv.getItemInMainHand().getType() == mat
+                ? inv.getItemInMainHand()
+                : inv.getItemInOffHand().getType() == mat
+                ? inv.getItemInOffHand()
+                : null;
+    }
+
     public static EquipmentSlot getEquipmentSlot(PlayerInventory inv, ItemStack item) {
         return inv.getItemInMainHand().equals(item) ? EquipmentSlot.HAND
                 : inv.getItemInOffHand().equals(item) ? EquipmentSlot.OFF_HAND : null;

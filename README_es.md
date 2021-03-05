@@ -4,7 +4,8 @@ Bloques Custom para servidores Spigot/PaperMC.
 
 Este proyecto está inspirado en el sistema de bloques custom de *Origin Realms*
 
-**Solo 1.16.5 (NMS, puede cambiar más tarde)**
+**Solo 1.16.5 (NMS, puede cambiar más tarde)\
+Este plugin requiere de un resourcepack para cargar las texturas: `/examples`**
 
 Contribuciones de cualquier tipo son bienvenidas, siguiendo la especificación
 de [all-contributors](https://allcontributors.org/).

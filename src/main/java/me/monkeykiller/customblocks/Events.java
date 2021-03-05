@@ -1,9 +1,8 @@
 package me.monkeykiller.customblocks;
 
-import net.minecraft.server.v1_16_R3.EntityPlayer;
-import net.minecraft.server.v1_16_R3.EnumHand;
-import net.minecraft.server.v1_16_R3.ItemActionContext;
-import net.minecraft.server.v1_16_R3.MovingObjectPositionBlock;
+import net.minecraft.server.v1_16_R3.*;
+import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -94,7 +93,31 @@ public class Events implements Listener {
     }
 
     @EventHandler
-    public void onPlayerInteractBlock(PlayerInteractEvent event) throws NullPointerException {
+    public void onPlayerInteract(PlayerInteractEvent event) throws NullPointerException {
+        try {
+            if (!event.getAction().equals(Action.RIGHT_CLICK_BLOCK)
+                    || Objects.requireNonNull(event.getClickedBlock()).getType().equals(Material.NOTE_BLOCK))
+                return;
+            ItemStack item = ItemUtils.getMaterialInHand(event.getPlayer().getInventory(), plugin.configData.cbiMaterial);
+            if (item == null) return;
+            CustomBlock CB = CustomBlock.getCustomBlockbyId(ItemUtils.getItemId(item));
+            if (ItemUtils.getItemId(item) == null || CB == null)
+                return;
+
+            Block placedBlock = event.getClickedBlock().getRelative(event.getBlockFace());
+            EquipmentSlot handSlot = Objects.requireNonNull(ItemUtils.getEquipmentSlot(event.getPlayer().getInventory(), item));
+            EntityPlayer human = ((CraftPlayer) event.getPlayer()).getHandle();
+
+            CB.place(new BlockPlaceEvent(placedBlock, placedBlock.getState(), event.getClickedBlock(), item, event.getPlayer(), true, handSlot));
+            human.playerConnection.sendPacket(new PacketPlayOutAnimation(human, handSlot == EquipmentSlot.HAND ? 0 : 3));
+            event.setCancelled(true);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @EventHandler
+    public void onPlayerInteractBlock(PlayerInteractEvent event) {
         if (!event.getAction().equals(Action.RIGHT_CLICK_BLOCK)
                 || !Objects.requireNonNull(event.getClickedBlock()).getType().equals(Material.NOTE_BLOCK))
             return;

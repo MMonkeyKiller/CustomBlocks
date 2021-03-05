@@ -4,7 +4,8 @@ Custom Blocks for Spigot/PaperMC.
 
 This project is inspired on *Origin Realms* Custom Block System
 
-**Only 1.16.5 (NMS, it can be changed later)**
+**Only 1.16.5 (NMS, it can be changed later)\
+This plugin requires a resourcepack to load the textures: `/examples`**
 
 Contributions of any kind are welcome, with the [all-contributors](https://allcontributors.org/) specification.
 

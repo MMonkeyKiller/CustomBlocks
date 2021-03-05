@@ -1,0 +1,7 @@
+blocks:
+  - id: "survitroll:example"
+    instrument: BANJO
+    note: 1
+    powered: false
+cb_item_material: PAPER
+debug_mode: false
