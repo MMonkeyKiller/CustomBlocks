@@ -33,6 +33,15 @@ public class ItemUtils {
                 : null;
     }
 
+    public static ItemStack getBlockOrCustomBlockInHand(@NotNull PlayerInventory inv) {
+
+        return (inv.getItemInMainHand().getType().isBlock() || CustomBlock.getCustomBlockbyItem(inv.getItemInMainHand()) != null) && inv.getItemInMainHand().getType() != Material.AIR
+                ? inv.getItemInMainHand()
+                : (inv.getItemInOffHand().getType().isBlock() || CustomBlock.getCustomBlockbyItem(inv.getItemInOffHand()) != null) && inv.getItemInOffHand().getType() != Material.AIR
+                ? inv.getItemInOffHand()
+                : null;
+    }
+
     public static EquipmentSlot getEquipmentSlot(PlayerInventory inv, ItemStack item) {
         return inv.getItemInMainHand().equals(item) ? EquipmentSlot.HAND
                 : inv.getItemInOffHand().equals(item) ? EquipmentSlot.OFF_HAND : null;

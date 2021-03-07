@@ -1,18 +1,17 @@
 package me.monkeykiller.customblocks;
 
-import net.minecraft.server.v1_16_R3.*;
-import org.bukkit.Material;
-import org.bukkit.Tag;
+import net.minecraft.server.v1_16_R3.EntityPlayer;
+import net.minecraft.server.v1_16_R3.EnumHand;
+import net.minecraft.server.v1_16_R3.ItemActionContext;
+import net.minecraft.server.v1_16_R3.MovingObjectPositionBlock;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Bisected;
-import org.bukkit.block.data.type.Door;
-import org.bukkit.block.data.type.NoteBlock;
-import org.bukkit.block.data.type.Slab;
-import org.bukkit.block.data.type.Stairs;
+import org.bukkit.block.data.type.*;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
+import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -24,17 +23,26 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.util.RayTraceResult;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class Events implements Listener {
 
     public Main plugin;
+    private final Set<Material> OPENABLE = new HashSet<>();
+    private final List<Material> REPLACE = Arrays.asList(Material.AIR, Material.CAVE_AIR, Material.VOID_AIR,
+            Material.GRASS, Material.SEAGRASS, Material.SNOW, Material.WATER, Material.LAVA);
 
-    public Events(Main plugin) {
-        this.plugin = plugin;
+    public Events(Main plugin) throws UnsupportedOperationException {
+        try {
+            this.plugin = plugin;
+            this.OPENABLE.addAll(Arrays.asList(Material.CHEST, Material.TRAPPED_CHEST, Material.ENDER_CHEST, Material.CRAFTING_TABLE, Material.BREWING_STAND, Material.CARTOGRAPHY_TABLE, Material.ENCHANTING_TABLE, Material.SMITHING_TABLE, Material.LECTERN, Material.LEVER, Material.COMMAND_BLOCK, Material.CHAIN_COMMAND_BLOCK, Material.REPEATING_COMMAND_BLOCK));
+            OPENABLE.addAll(Tag.SIGNS.getValues());
+            OPENABLE.addAll(Tag.TRAPDOORS.getValues());
+            OPENABLE.addAll(Tag.DOORS.getValues());
+            OPENABLE.addAll(Tag.BUTTONS.getValues());
+        } catch (UnsupportedOperationException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -66,10 +74,10 @@ public class Events implements Listener {
 
     }
 
-    @EventHandler
+    /*@EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         customBlockPlaceCheck(event);
-    }
+    }*/
 
     @EventHandler
     public void onPistonExtends(BlockPistonExtendEvent event) {
@@ -92,25 +100,52 @@ public class Events implements Listener {
         event.setCancelled(true);
     }
 
-    @EventHandler
-    public void onPlayerInteract(PlayerInteractEvent event) throws NullPointerException {
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        placeAndCheckCB(event);
+    }
+
+    private void placeAndCheckCB(PlayerInteractEvent event) throws NullPointerException {
         try {
             if (!event.getAction().equals(Action.RIGHT_CLICK_BLOCK)
-                    || Objects.requireNonNull(event.getClickedBlock()).getType().equals(Material.NOTE_BLOCK))
+                /*|| Objects.requireNonNull(event.getClickedBlock()).getType().equals(Material.NOTE_BLOCK)*/)
                 return;
             ItemStack item = ItemUtils.getMaterialInHand(event.getPlayer().getInventory(), plugin.configData.cbiMaterial);
             if (item == null) return;
-            CustomBlock CB = CustomBlock.getCustomBlockbyId(ItemUtils.getItemId(item));
-            if (ItemUtils.getItemId(item) == null || CB == null)
+            CustomBlock CB = CustomBlock.getCustomBlockbyItem(item);
+            if (CB == null)
                 return;
+            event.setCancelled(true);
+
+            if (OPENABLE.contains(Objects.requireNonNull(event.getClickedBlock()).getType()) && !event.getPlayer().isSneaking()) {
+                event.setCancelled(false);
+                return;
+            }
 
             Block placedBlock = event.getClickedBlock().getRelative(event.getBlockFace());
+            Material replacedBlock = placedBlock.getType();
             EquipmentSlot handSlot = Objects.requireNonNull(ItemUtils.getEquipmentSlot(event.getPlayer().getInventory(), item));
             EntityPlayer human = ((CraftPlayer) event.getPlayer()).getHandle();
 
+            if (REPLACE.contains(event.getClickedBlock().getType()) || (event.getClickedBlock().getType().equals(Material.SNOW) && ((Snow) event.getClickedBlock().getBlockData()).getLayers() == 1))
+                placedBlock = event.getClickedBlock();
+            else if (!REPLACE.contains(placedBlock.getType()))
+                return;
+            placedBlock.setType(Material.BARRIER);
             CB.place(new BlockPlaceEvent(placedBlock, placedBlock.getState(), event.getClickedBlock(), item, event.getPlayer(), true, handSlot));
-            human.playerConnection.sendPacket(new PacketPlayOutAnimation(human, handSlot == EquipmentSlot.HAND ? 0 : 3));
-            event.setCancelled(true);
+            if (!placedBlock.getWorld().getNearbyEntities(placedBlock.getBoundingBox(), entity -> !(entity instanceof Item)).isEmpty()) {
+                placedBlock.setType(replacedBlock);
+                return;
+            }
+            //event.setCancelled(true);
+            human.swingHand(handSlot == EquipmentSlot.HAND ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND, true);
+
+            if (!event.getPlayer().getGameMode().equals(GameMode.CREATIVE))
+                if (item.getAmount() <= 1)
+                    item.setType(Material.AIR);
+                else
+                    item.setAmount(item.getAmount() - 1);
+
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
@@ -123,15 +158,13 @@ public class Events implements Listener {
             return;
         event.setCancelled(true);
         PlayerInventory inv = event.getPlayer().getInventory();
-        ItemStack item = ItemUtils.getBlockInHand(inv);
+        ItemStack item = ItemUtils.getBlockOrCustomBlockInHand(inv);
         if (item == null)
             return;
         if (event.getPlayer().isSneaking())
             event.setCancelled(false);
         else {
             Block pblock = event.getClickedBlock().getRelative(event.getBlockFace());
-            List<Material> REPLACE = Arrays.asList(Material.AIR, Material.CAVE_AIR, Material.VOID_AIR,
-                    Material.GRASS, Material.WATER, Material.LAVA);
 
             net.minecraft.server.v1_16_R3.ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
             EnumHand hand = ItemUtils.getEquipmentSlot(inv, item) == EquipmentSlot.HAND ? EnumHand.MAIN_HAND
@@ -148,10 +181,15 @@ public class Events implements Listener {
             if (rtr == null) return;
             Location interactionPoint = rtr.getHitPosition().subtract(Objects.requireNonNull(rtr.getHitBlock()).getLocation().toVector())
                     .toLocation(event.getPlayer().getWorld());
+            if (item.getType().equals(plugin.configData.cbiMaterial))
+                placeAndCheckCB(event);
+
+            if (REPLACE.contains(event.getClickedBlock().getType()) || (event.getClickedBlock().getType().equals(Material.SNOW) && ((Snow) event.getClickedBlock().getBlockData()).getLayers() == 1))
+                pblock = event.getClickedBlock();
+            else if (!REPLACE.contains(pblock.getType()))
+                return;
 
             if (Tag.STAIRS.isTagged(item.getType())) {
-                if (!REPLACE.contains(pblock.getType()))
-                    return;
                 nmsItem.placeItem(new ItemActionContext(human, hand, MOPB), hand);
                 Stairs data = ((Stairs) pblock.getBlockData());
                 data.setHalf(
@@ -167,14 +205,13 @@ public class Events implements Listener {
                 Slab data = (Slab) pblock.getBlockData();
                 data.setType(dataType);
                 pblock.setBlockData(data);
-            } else if (REPLACE.contains(pblock.getType()))
+            } else
                 nmsItem.placeItem(new ItemActionContext(human, hand, MOPB), hand);
-
         }
 
     }
 
-    private void customBlockPlaceCheck(BlockPlaceEvent event) {
+    /*private void customBlockPlaceCheck(BlockPlaceEvent event) {
         ItemStack item = ItemUtils.getBlockInHand(event.getPlayer().getInventory());
         if (item == null) return;
 
@@ -188,7 +225,7 @@ public class Events implements Listener {
         if (CB == null)
             return;
         CB.place(event);
-    }
+    }*/
 
     public void updateAndCheck(Location loc) {
         Block b = loc.getBlock().getRelative(BlockFace.UP);

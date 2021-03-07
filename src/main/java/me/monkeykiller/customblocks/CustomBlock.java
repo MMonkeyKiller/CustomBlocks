@@ -7,6 +7,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.type.NoteBlock;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -35,6 +36,13 @@ public class CustomBlock {
             if (CB.id.equals(id))
                 return CB;
         return null;
+    }
+
+    public static CustomBlock getCustomBlockbyItem(@NotNull ItemStack item) {
+        if (item == null) return null;
+        String itemId = ItemUtils.getItemId(item);
+        if (itemId == null) return null;
+        return getCustomBlockbyId(itemId);
     }
 
     public static CustomBlock getCustomBlockbyData(NoteBlock data) {

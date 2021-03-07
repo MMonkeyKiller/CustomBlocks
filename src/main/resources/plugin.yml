@@ -1,8 +1,14 @@
 name: CustomBlocks
 version: ${project.version}
 main: me.monkeykiller.customblocks.Main
-api-version: 1.13
+api-version: 1.16
 authors: [ MonkeyKiller ]
 website: https://github.com/MMonkeyKiller
-
 depend: [ NBTAPI ]
+
+commands:
+  customblocks:
+    aliases: cb
+    description: CustomBlocks main command
+    permission: customblocks.command.customblocks
+

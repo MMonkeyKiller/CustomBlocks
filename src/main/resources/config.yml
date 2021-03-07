@@ -1,5 +1,5 @@
 blocks:
-  - id: "survitroll:example"
+  - id: "customblocks:example"
     instrument: BANJO
     note: 1
     powered: false
