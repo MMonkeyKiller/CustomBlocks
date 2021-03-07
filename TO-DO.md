@@ -12,6 +12,7 @@
 | CB Items menu | 2 |
 | Make cblocks piston movable | 2 |
 | Make cblocks explodable | 2 |
+| Multi NMS Compatibility | 1 (only for first release) |
 | Messages.yml | 1 |
 
 `When everything in the list with an importance level greater than 1 is complete, an official release will be created on the main branch`
