@@ -1,5 +1,7 @@
 package me.monkeykiller.customblocks;
 
+import de.tr7zw.nbtapi.NBTContainer;
+import de.tr7zw.nbtapi.NBTItem;
 import org.bukkit.Instrument;
 import org.bukkit.Material;
 import org.bukkit.Note;
@@ -19,12 +21,17 @@ public class CustomBlock {
     public static List<CustomBlock> REGISTRY = new ArrayList<>();
 
     public String id;
+    public int itemModelData;
     public Instrument instrument;
     public int note;
     public boolean powered;
 
-    public CustomBlock(@NotNull String id, @NotNull Instrument instrument, @NotNull int note, @NotNull boolean powered) {
+    public CustomBlock(@NotNull String id, int itemModelData, @NotNull Instrument instrument, int note, boolean powered) throws Exception {
+        if (getCustomBlockbyId(id) != null) {
+            throw new Exception("CustomBlock " + id + " already exists!");
+        }
         this.id = id;
+        this.itemModelData = itemModelData;
         this.instrument = instrument;
         this.note = note;
         this.powered = powered;
@@ -39,7 +46,6 @@ public class CustomBlock {
     }
 
     public static CustomBlock getCustomBlockbyItem(@NotNull ItemStack item) {
-        if (item == null) return null;
         String itemId = ItemUtils.getItemId(item);
         if (itemId == null) return null;
         return getCustomBlockbyId(itemId);
@@ -66,23 +72,37 @@ public class CustomBlock {
     }
 
     public void mine(BlockBreakEvent event) {
+        event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), this.getItemStack());
+        event.setExpToDrop(0);
     }
 
     public boolean compareData(NoteBlock data) {
         return data.getInstrument() == instrument && data.getNote().equals(new Note(note)) && data.isPowered() == powered;
     }
 
+    public ItemStack getItemStack() {
+        NBTItem nbtc = new NBTItem(new ItemStack(Main.plugin.configData.cbiMaterial));
+        nbtc.mergeCompound(new NBTContainer(String.format("{CustomModelData: %s, display:{Name:'{\"translate\":\"%s\", \"italic\": false}'}, ItemId:\"%s\"}", itemModelData, "customblocks.item." + id + ".name", id)));
+        return nbtc.getItem();
+    }
+
     // SERIALIZERS
     public Map<String, Object> serialize() {
         Map<String, Object> serialized = new HashMap<>();
         serialized.put("id", this.id);
+        serialized.put("itemModelData", this.itemModelData);
         serialized.put("instrument", this.instrument.toString());
         serialized.put("note", this.note);
         serialized.put("powered", this.powered);
         return serialized;
     }
 
-    public static CustomBlock deserialize(Map<String, Object> deserialize) {
-        return new CustomBlock((String) deserialize.get("id"), Instrument.valueOf((String) deserialize.get("instrument")), (int) deserialize.get("note"), (boolean) deserialize.get("powered"));
+    public static CustomBlock deserialize(Map<String, Object> deserialize) throws Exception {
+        try {
+            return new CustomBlock((String) deserialize.get("id"), (int) deserialize.get("itemModelData"), Instrument.valueOf((String) deserialize.get("instrument")), (int) deserialize.get("note"), (boolean) deserialize.get("powered"));
+        } catch (Exception err) {
+            err.printStackTrace();
+        }
+        return null;
     }
 }

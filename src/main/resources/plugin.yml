@@ -11,4 +11,8 @@ commands:
     aliases: cb
     description: CustomBlocks main command
     permission: customblocks.command.customblocks
+  cblocks:
+    aliases: cbks
+    description: Get all custom blocks
+    permission: customblocks.command.cblocks
 

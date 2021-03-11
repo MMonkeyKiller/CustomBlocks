@@ -55,7 +55,7 @@ public class ItemUtils {
         return getItemId(item) != null && getItemId(item).equalsIgnoreCase(id);
     }
 
-    public static String getItemId(ItemStack item) {
+    public static String getItemId(@NotNull ItemStack item) {
         return new NBTItem(item).getString("ItemId");
     }
 }
