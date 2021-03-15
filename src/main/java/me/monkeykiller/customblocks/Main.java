@@ -76,11 +76,8 @@ public final class Main extends JavaPlugin {
     }
 
     private void setupCommodore() throws IOException {
-        /*List<PluginCommand> cmds = new ArrayList<>();
-        Commands.REGISTRY.forEach(CBCommand -> cmds.add(CBCommand.parseCommand()));*/
         if (!CommodoreProvider.isSupported()) {
             Bukkit.getLogger().info(configData.prefix + "Commodore is not supported by Server, disabling TabCompleter feature!");
-            //Commands.REGISTRY.forEach(cbc -> cbc.parseCommand().setTabCompleter(cbc));
             return;
         }
 

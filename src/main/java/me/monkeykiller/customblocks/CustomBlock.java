@@ -41,8 +41,7 @@ public class CustomBlock {
 
     public static CustomBlock getCustomBlockbyId(String id) {
         for (CustomBlock CB : REGISTRY)
-            if (CB.id.toLowerCase().contains(id))
-                return CB;
+            if (CB.id.equalsIgnoreCase(id)) return CB;
         return null;
     }
 

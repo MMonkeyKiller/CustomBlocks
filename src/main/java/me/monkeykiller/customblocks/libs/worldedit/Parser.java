@@ -33,9 +33,10 @@ public class Parser extends InputParser {
     }
 
     public Stream getSuggestions(String s) {
-        return CustomBlock.REGISTRY.stream()
-                .map(CB -> CB.id.toLowerCase())
-                .filter(CBId -> CBId.contains(s.toLowerCase()));
+        return s.isEmpty() ? Stream.empty() : CustomBlock.REGISTRY.stream()
+                .filter(CB -> CB.id.contains(s.toLowerCase()))
+                .map(CB -> CB.id)
+                .sorted(String::compareToIgnoreCase);
     }
 
     public BaseBlock parseFromInput(String input, ParserContext context) {
@@ -51,9 +52,8 @@ public class Parser extends InputParser {
 
             HashMap<String, Tag> tags = new HashMap<>();
             tags.put("CBlock", new CBTag(this, input));
-            CompoundTag nbt = new CompoundTag(tags);
-            BaseBlock baseBlock = (BaseBlock) BBConstructor.newInstance(BSConstructor, nbt);
-            return baseBlock;
+
+            return (BaseBlock) BBConstructor.newInstance(blockState, new CompoundTag(tags));
         } catch (IllegalAccessException | InvocationTargetException | InstantiationException ex) {
             ex.printStackTrace();
         }
