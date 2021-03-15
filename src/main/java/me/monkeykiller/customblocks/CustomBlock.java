@@ -2,6 +2,7 @@ package me.monkeykiller.customblocks;
 
 import de.tr7zw.nbtapi.NBTContainer;
 import de.tr7zw.nbtapi.NBTItem;
+import me.monkeykiller.customblocks.utils.ItemUtils;
 import org.bukkit.Instrument;
 import org.bukkit.Material;
 import org.bukkit.Note;
@@ -40,7 +41,7 @@ public class CustomBlock {
 
     public static CustomBlock getCustomBlockbyId(String id) {
         for (CustomBlock CB : REGISTRY)
-            if (CB.id.equals(id))
+            if (CB.id.toLowerCase().contains(id))
                 return CB;
         return null;
     }
@@ -59,7 +60,10 @@ public class CustomBlock {
     }
 
     public void place(BlockPlaceEvent event) {
-        Block block = event.getBlock();
+        place(event.getBlock());
+    }
+
+    public void place(Block block) {
         block.setType(Material.NOTE_BLOCK, false);
         if (!(block.getBlockData() instanceof NoteBlock))
             return;
@@ -68,7 +72,6 @@ public class CustomBlock {
         state.setNote(new Note(note));
         state.setPowered(powered);
         block.setBlockData(state);
-
     }
 
     public void mine(BlockBreakEvent event) {
@@ -81,9 +84,20 @@ public class CustomBlock {
     }
 
     public ItemStack getItemStack() {
-        NBTItem nbtc = new NBTItem(new ItemStack(Main.plugin.configData.cbiMaterial));
+        NBTItem nbtc = new NBTItem(new ItemStack(Main.configData.cbiMaterial));
         nbtc.mergeCompound(new NBTContainer(String.format("{CustomModelData: %s, display:{Name:'{\"translate\":\"%s\", \"italic\": false}'}, ItemId:\"%s\"}", itemModelData, "customblocks.item." + id + ".name", id)));
         return nbtc.getItem();
+    }
+
+    public static boolean isCustomBlock(Block b) {
+        if (!(b.getBlockData() instanceof NoteBlock))
+            return false;
+        NoteBlock data = (NoteBlock) b.getBlockData();
+        return !data.getNote().equals(new Note(0));
+    }
+
+    public static boolean isCustomBlock(String id) {
+        return getCustomBlockbyId(id) != null;
     }
 
     // SERIALIZERS

@@ -1,29 +1,28 @@
 package me.monkeykiller.customblocks.listeners;
 
-import me.monkeykiller.customblocks.ItemUtils;
 import me.monkeykiller.customblocks.Main;
+import me.monkeykiller.customblocks.utils.ItemUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-public class InventoryEvents implements Listener {
-    public Main plugin;
+import java.util.Objects;
 
-    public InventoryEvents(Main plugin) {
-        this.plugin = plugin;
-    }
+public class InventoryEvents extends BaseEvent {
 
     @EventHandler
     private void onInventoryClick(InventoryClickEvent event) {
         Inventory inv = event.getClickedInventory();
         assert inv != null;
-        ItemStack item = inv.getItem(event.getSlot()).clone();
+        if (inv.getItem(event.getSlot()) == null) return;
+        ItemStack item = Objects.requireNonNull(inv.getItem(event.getSlot())).clone();
         Player player = (Player) event.getView().getPlayer();
+        if (event.getClick().isCreativeAction())
+            player.sendMessage(item.toString());
 
-        String title = event.getView().getTitle();
+        String title = Main.configData.cbksGUITitle;
         if (ItemUtils.isAirOrNull(item) || !title.equals("CustomBlocks")) return;
         event.setCancelled(true);
         if (event.getView().getBottomInventory() == event.getClickedInventory())

@@ -1,6 +1,7 @@
-package me.monkeykiller.customblocks;
+package me.monkeykiller.customblocks.utils;
 
 import de.tr7zw.nbtapi.NBTItem;
+import me.monkeykiller.customblocks.CustomBlock;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.EquipmentSlot;
@@ -56,6 +57,6 @@ public class ItemUtils {
     }
 
     public static String getItemId(@NotNull ItemStack item) {
-        return new NBTItem(item).getString("ItemId");
+        return item != null ?new NBTItem(item).getString("ItemId") : null;
     }
 }

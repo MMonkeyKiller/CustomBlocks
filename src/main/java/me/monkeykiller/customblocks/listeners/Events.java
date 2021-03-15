@@ -1,9 +1,9 @@
 package me.monkeykiller.customblocks.listeners;
 
 import me.monkeykiller.customblocks.CustomBlock;
-import me.monkeykiller.customblocks.ItemUtils;
 import me.monkeykiller.customblocks.Main;
-import me.monkeykiller.customblocks.NMSUtils;
+import me.monkeykiller.customblocks.utils.ItemUtils;
+import me.monkeykiller.customblocks.utils.NMSUtils;
 import net.minecraft.server.v1_16_R3.EntityPlayer;
 import net.minecraft.server.v1_16_R3.EnumHand;
 import net.minecraft.server.v1_16_R3.ItemActionContext;
@@ -18,7 +18,6 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -31,20 +30,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-public class Events implements Listener {
-
-    public Main plugin;
+public class Events extends BaseEvent {
     private final List<Material> REPLACE = Arrays.asList(Material.AIR, Material.CAVE_AIR, Material.VOID_AIR,
             Material.GRASS, Material.SEAGRASS, Material.SNOW, Material.WATER, Material.LAVA);
-
-    public Events(Main plugin) throws UnsupportedOperationException {
-        try {
-            this.plugin = plugin;
-        } catch (UnsupportedOperationException e) {
-            e.printStackTrace();
-        }
-    }
-
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     private void onBlockPhysics(BlockPhysicsEvent event) {
@@ -101,7 +89,7 @@ public class Events implements Listener {
 
             Player p = event.getPlayer();
             PlayerInventory inv = p.getInventory();
-            ItemStack item = ItemUtils.getMaterialInHand(inv, plugin.configData.cbiMaterial);
+            ItemStack item = ItemUtils.getMaterialInHand(inv, Main.configData.cbiMaterial);
 
             assert item != null;
             CustomBlock CB = CustomBlock.getCustomBlockbyItem(item);
@@ -109,7 +97,7 @@ public class Events implements Listener {
             event.setCancelled(true);
 
 
-            if (plugin.configData.clickable.contains(Objects.requireNonNull(event.getClickedBlock()).getType()) && !p.isSneaking()) {
+            if (Main.configData.clickable.contains(Objects.requireNonNull(event.getClickedBlock()).getType()) && !p.isSneaking()) {
                 event.setCancelled(false);
                 return;
             }
@@ -180,7 +168,7 @@ public class Events implements Listener {
         if (rtr == null) return;
         Location interactionPoint = rtr.getHitPosition().subtract(Objects.requireNonNull(rtr.getHitBlock()).getLocation().toVector())
                 .toLocation(event.getPlayer().getWorld());
-        if (item.getType().equals(plugin.configData.cbiMaterial))
+        if (item.getType().equals(Main.configData.cbiMaterial))
             placeAndCheckCB(event);
 
         if (REPLACE.contains(event.getClickedBlock().getType()) || (event.getClickedBlock().getType().equals(Material.SNOW) && ((Snow) event.getClickedBlock().getBlockData()).getLayers() == 1))
@@ -240,7 +228,7 @@ public class Events implements Listener {
         // looping through it
 
         for (Block b : blockList)
-            if (b.getType() == Material.NOTE_BLOCK && isCustomBlock(b)) {
+            if (b.getType() == Material.NOTE_BLOCK && CustomBlock.isCustomBlock(b)) {
                 event.blockList().remove(b);
                 CustomBlock CB = CustomBlock.getCustomBlockbyData((NoteBlock) b.getBlockData());
                 if (CB == null)
@@ -248,12 +236,5 @@ public class Events implements Listener {
                 CB.mine(new BlockBreakEvent(b, b.getWorld().getPlayers().get(0)));
                 // b.getDrops().add(new ItemStack(Material.DIAMOND));
             }
-    }
-
-    private boolean isCustomBlock(Block b) {
-        if (!(b.getBlockData() instanceof NoteBlock))
-            return false;
-        NoteBlock data = (NoteBlock) b.getBlockData();
-        return !data.getNote().equals(new Note(0));
     }
 }

@@ -12,6 +12,9 @@ de [all-contributors](https://allcontributors.org/).
 
 _Dependencias: [NBT-API](https://www.spigotmc.org/resources/nbt-api.7939/)_
 
+_Este plugin viene integrado con [commodore](https://github.com/lucko/commodore) para el completado de comandos_
+_Es compatible con WorldEdit [EN DESARROLLO]_
+
 ## Contribuidores
 
 _Ninguno_

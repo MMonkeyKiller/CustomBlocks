@@ -11,6 +11,9 @@ Contributions of any kind are welcome, with the [all-contributors](https://allco
 
 _Dependencies: [NBT-API](https://www.spigotmc.org/resources/nbt-api.7939/)_
 
+_This plugin comes integrated with [commodore](https://github.com/lucko/commodore) for tabCompletion_
+_It supports WorldEdit [IN DEVELOPMENT]_
+
 ## Contributors
 
 _None_
