@@ -1,7 +1,7 @@
 package me.monkeykiller.customblocks.commands;
 
 import me.monkeykiller.customblocks.CustomBlock;
-import me.monkeykiller.customblocks.Main;
+import me.monkeykiller.customblocks.utils.config;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -30,13 +30,14 @@ public class CBMenu extends CBCommand {
             sender.sendMessage(ChatColor.RED + "You don't have permission to use this command (" + ChatColor.GOLD + "customblocks.command.cblocks" + ChatColor.RED + ")");
             return false;
         }
-        Inventory inv = Bukkit.createInventory(null, 9 * 6, Main.configData.cbksGUITitle);
+        Inventory inv = Bukkit.createInventory(null, 9 * 6, config.cbksGUITitle);
         int i = 0;
         for (CustomBlock CB : CustomBlock.REGISTRY) {
             if (i > inv.getSize()) break;
             inv.setItem(i, CB.getItemStack());
             i++;
         }
+
         ((Player) sender).openInventory(inv);
         return true;
     }

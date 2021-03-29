@@ -1,19 +1,13 @@
 package me.monkeykiller.customblocks.utils;
 
-import com.mojang.brigadier.arguments.BoolArgumentType;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.builder.RequiredArgumentBuilder;
-import me.lucko.commodore.Commodore;
 import net.minecraft.server.v1_16_R3.*;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.command.PluginCommand;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
+import org.jetbrains.annotations.NotNull;
 
 public class NMSUtils {
     public static Location getInteractionPoint(World world, MovingObjectPositionBlock movingobjectpositionblock) {
@@ -29,6 +23,10 @@ public class NMSUtils {
         return new BlockPosition(block.getX(), block.getY(), block.getZ());
     }
 
+    public static BlockPosition BlockToBlockPos(Location location) {
+        return new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+    }
+
     public static EntityPlayer parseHuman(Player p) {
         return ((CraftPlayer) p).getHandle();
     }
@@ -38,24 +36,8 @@ public class NMSUtils {
 
     }
 
-    public static void registerCompletions(Commodore commodore, PluginCommand command) {
-        try {
-            commodore.register((PluginCommand) command, LiteralArgumentBuilder.literal(command.getName())
-                    .then(LiteralArgumentBuilder.literal("reload"))
-                    .then(LiteralArgumentBuilder.literal("add")
-                            .then(RequiredArgumentBuilder.argument("id", StringArgumentType.greedyString())
-                                    .then(RequiredArgumentBuilder.argument("itemModelData", IntegerArgumentType.integer())
-                                            .then(RequiredArgumentBuilder.argument("instrument", StringArgumentType.string())
-                                                    .then(RequiredArgumentBuilder.argument("note", IntegerArgumentType.integer(1, 24))
-                                                            .then(RequiredArgumentBuilder.argument("powered", BoolArgumentType.bool()))
-                                                    )
-                                            )
-                                    )
-                            )
-                    )
-            );
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public static MovingObjectPositionBlock getMOPB(@NotNull Player player, @NotNull Location blockLoc, boolean var3) {
+        EntityPlayer human = parseHuman(player);
+        return new MovingObjectPositionBlock(LocToVec(player.getEyeLocation()), human.getDirection(), BlockToBlockPos(blockLoc), var3);
     }
 }

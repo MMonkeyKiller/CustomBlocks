@@ -1,7 +1,10 @@
 package me.monkeykiller.customblocks.commands;
 
-import me.monkeykiller.customblocks.Main;
-import org.bukkit.command.*;
+import me.monkeykiller.customblocks.CustomBlocks;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,7 +19,9 @@ public class CBCommand implements CommandExecutor {
         this.name = name;
         this.aliases = aliases;
         //Main.plugin.getCommand(name).setTabCompleter(this);
-        Main.plugin.getCommand(name).setExecutor(this);
+        PluginCommand cmd = CustomBlocks.plugin.getCommand(name);
+        assert cmd != null;
+        cmd.setExecutor(this);
     }
 
     @Override
@@ -30,7 +35,7 @@ public class CBCommand implements CommandExecutor {
     }
 
     public PluginCommand parseCommand() {
-        return Main.plugin.getCommand(name);
+        return CustomBlocks.plugin.getCommand(name);
     }
 
 }

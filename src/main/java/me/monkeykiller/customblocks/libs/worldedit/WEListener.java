@@ -6,7 +6,8 @@ import com.sk89q.worldedit.event.extent.EditSessionEvent;
 import com.sk89q.worldedit.util.eventbus.EventHandler.Priority;
 import com.sk89q.worldedit.util.eventbus.Subscribe;
 import me.monkeykiller.customblocks.CustomBlock;
-import me.monkeykiller.customblocks.Main;
+import me.monkeykiller.customblocks.CustomBlocks;
+import me.monkeykiller.customblocks.utils.config;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -19,7 +20,7 @@ import org.bukkit.event.server.PluginEnableEvent;
 public class WEListener implements Listener {
 
     public WEListener() {
-        Bukkit.getPluginManager().registerEvents(this, Main.plugin);
+        Bukkit.getPluginManager().registerEvents(this, CustomBlocks.plugin);
     }
 
     @Subscribe(priority = Priority.VERY_LATE)
@@ -34,10 +35,8 @@ public class WEListener implements Listener {
 
         String message = event.getMessage();
         String[] args = message.split(" ");
-        String CBId;
-        if (!message.startsWith("//replace") || message.startsWith("//replacenear")) return;
-        if (args.length < 1) return;
-        CBId = args[message.startsWith("//replacenear") ? 2 : 1];
+        if (!message.startsWith("//replace") || message.startsWith("//replacenear") || args.length < 1) return;
+        String CBId = args[message.startsWith("//replacenear") ? 2 : 1];
         if (!CustomBlock.isCustomBlock(CBId)) return;
         CustomBlock CB = CustomBlock.getCustomBlockbyId(CBId);
         assert CB != null;
@@ -48,11 +47,11 @@ public class WEListener implements Listener {
     @EventHandler
     @SuppressWarnings("unchecked")
     public void onPluginEnable(PluginEnableEvent event) {
-        if (event.getPlugin().getName().equals("WorldEdit")) {
-            WorldEdit.getInstance().getEventBus().register(this);
-            WorldEdit.getInstance().getBlockFactory().register(new Parser(WorldEdit.getInstance()));
-            Bukkit.getLogger().info(Main.configData.prefix + "WorldEdit found! Setting up CustomBlocks-WorldEdit...");
-        }
+        if (!event.getPlugin().getName().equals("WorldEdit")) return;
+        WorldEdit.getInstance().getEventBus().register(this);
+        WorldEdit.getInstance().getBlockFactory().register(new Parser(WorldEdit.getInstance()));
+        System.out.println(config.prefixes.prefix + "WorldEdit found! Setting up CustomBlocks-WorldEdit...");
+
     }
 
     @EventHandler

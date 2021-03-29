@@ -5,12 +5,12 @@ import me.lucko.commodore.Commodore;
 import me.lucko.commodore.CommodoreProvider;
 import me.monkeykiller.customblocks.commands.CBMenu;
 import me.monkeykiller.customblocks.commands.Commands;
-import me.monkeykiller.customblocks.commands.CustomBlocks;
 import me.monkeykiller.customblocks.libs.worldedit.Parser;
 import me.monkeykiller.customblocks.libs.worldedit.WEListener;
 import me.monkeykiller.customblocks.listeners.Events;
 import me.monkeykiller.customblocks.listeners.InventoryEvents;
-import me.monkeykiller.customblocks.utils.NMSUtils;
+import me.monkeykiller.customblocks.utils.brigadierUtils;
+import me.monkeykiller.customblocks.utils.config;
 import me.monkeykiller.customblocks.utils.configData;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -18,49 +18,48 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.IOException;
-import java.util.logging.Level;
+import java.util.Objects;
 
-public final class Main extends JavaPlugin {
-    public static Main plugin;
+public final class CustomBlocks extends JavaPlugin {
+    public static CustomBlocks plugin;
     public static configData configData;
-
     public static Commodore commodore;
 
     public PluginDescriptionFile pdfFile = getDescription();
+
+    public static class pluginInfo {
+        public static String name = CustomBlocks.plugin.pdfFile.getPrefix() != null ?
+                CustomBlocks.plugin.pdfFile.getPrefix() :
+                CustomBlocks.plugin.pdfFile.getName();
+        public static String version = CustomBlocks.plugin.pdfFile.getVersion();
+    }
+
     public PluginManager pm = Bukkit.getPluginManager();
-    WEListener weListener;
+    public WEListener weListener;
 
     @Override
     public void onEnable() {
         plugin = this;
-        configData = new configData(this);
-        if (!checkNBTApi()) return;
+        configData = new configData();
+        weListener = new WEListener();
+        configData.setPlugin(this);
+        checkNBTApi();
+
         loadConfig();
         setupCommands();
-        try {
-            setupCommodore();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        setupCommodore();
         setupEvents();
 
-        if (configData.debug_mode) {
-            /*
-            TEMPORAL
-            WORLDEDIT IMPLEMENTATION IN DEVELOPMENT
-            */
-            this.weListener = new WEListener();
-            loadWE();
-        }
-        Bukkit.getLogger().info(configData.prefix + "Plugin enabled (v." + pdfFile.getVersion() + ")");
+        // TODO: Make WE Implementation nonDebug content
+        if (config.debug_mode) loadWE();
+
+        System.out.println(config.prefixes.prefix + "Plugin enabled (v." + pluginInfo.version + ")");
     }
 
     @Override
     public void onDisable() {
-        if (configData.debug_mode)
-            unloadWE();
-        Bukkit.getLogger().info(configData.prefix + "Plugin disabled");
+        if (config.debug_mode) unloadWE();
+        System.out.println(config.prefixes.prefix + "Plugin disabled");
     }
 
     public void loadConfig() {
@@ -75,27 +74,30 @@ public final class Main extends JavaPlugin {
         new WEListener();
     }
 
-    private void setupCommodore() throws IOException {
+    private void setupCommodore() {
         if (!CommodoreProvider.isSupported()) {
-            Bukkit.getLogger().info(configData.prefix + "Commodore is not supported by Server, disabling TabCompleter feature!");
+            System.out.println(config.prefixes.prefix + "Commodore is not supported by Server, disabling TabCompleter feature!");
             return;
         }
 
-        Bukkit.getLogger().info(configData.prefix + "Using Commodore TabCompleter");
+        System.out.println(config.prefixes.prefix + "Using Commodore TabCompleter");
         commodore = CommodoreProvider.getCommodore(this);
-        Commands.REGISTRY.forEach(a -> NMSUtils.registerCompletions(commodore, a.parseCommand()));
+        /*Commands.REGISTRY.stream()
+                .map(CBCommand::parseCommand)
+                .forEach(brigadierUtils::registerCompletions);*/
+        brigadierUtils.registerCompletions(Objects.requireNonNull(Commands.getCommand("CustomBlocks"))
+                .parseCommand());
     }
 
     private void setupCommands() {
-        Commands.REGISTRY.add(new CustomBlocks());
+        Commands.REGISTRY.add(new me.monkeykiller.customblocks.commands.CustomBlocks());
         Commands.REGISTRY.add(new CBMenu());
     }
 
-    private boolean checkNBTApi() {
-        if (pm.getPlugin("NBTAPI") != null) return true;
-        getLogger().log(Level.SEVERE, "Dependency NBTAPI not found!");
+    private void checkNBTApi() {
+        if (pm.getPlugin("NBTAPI") != null) return;
+        System.out.println(config.prefixes.warn + "Dependency NBTAPI not found!");
         pm.disablePlugin(this);
-        return false;
     }
 
     public static String colorify(String s) {

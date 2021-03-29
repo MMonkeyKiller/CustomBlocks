@@ -1,6 +1,6 @@
 name: CustomBlocks
 version: ${project.version}
-main: me.monkeykiller.customblocks.Main
+main: me.monkeykiller.customblocks.CustomBlocks
 api-version: 1.16
 authors: [ MonkeyKiller ]
 website: https://github.com/MMonkeyKiller

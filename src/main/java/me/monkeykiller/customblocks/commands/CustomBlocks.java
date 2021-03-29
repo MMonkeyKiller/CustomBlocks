@@ -1,7 +1,7 @@
 package me.monkeykiller.customblocks.commands;
 
 import me.monkeykiller.customblocks.CustomBlock;
-import me.monkeykiller.customblocks.Main;
+import me.monkeykiller.customblocks.utils.config;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Instrument;
@@ -32,19 +32,19 @@ public class CustomBlocks extends CBCommand {
         if (args[0].equalsIgnoreCase("reload")) {
             //plugin.configData.loadConfig();
             /*Main.plugin.reloadConfig();*/
-            Main.configData.reloadConfig(); // /cb reload issue FIX
-            sender.sendMessage(Main.colorify(Main.configData.prefix + "&aConfiguration reloaded!"));
-            Bukkit.getLogger().info(Main.colorify(Main.configData.prefix + "&aConfiguration reloaded!"));
+            me.monkeykiller.customblocks.CustomBlocks.configData.reloadConfig(); // /cb reload issue FIX
+            sender.sendMessage(me.monkeykiller.customblocks.CustomBlocks.colorify(config.prefixes.prefix + "&aConfiguration reloaded!"));
+            Bukkit.getLogger().info(me.monkeykiller.customblocks.CustomBlocks.colorify(config.prefixes.prefix + "&aConfiguration reloaded!"));
             return true;
         } else if (args[0].equalsIgnoreCase("add")) {
             if (args.length < 5) return false;
             try {
-                Main.configData.blocks.add(new CustomBlock(args[1], parseInt(args[2]), Instrument.valueOf(args[3]), parseInt(args[4]), args[5].equalsIgnoreCase("true")).serialize());
+                config.blocks.add(new CustomBlock(args[1], parseInt(args[2]), Instrument.valueOf(args[3]), parseInt(args[4]), args[5].equalsIgnoreCase("true")).serialize());
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            Main.configData.saveBlocks();
-            sender.sendMessage(Main.colorify(Main.configData.prefix + "Block " + args[1] + " added sucessfully"));
+            me.monkeykiller.customblocks.CustomBlocks.configData.saveBlocks();
+            sender.sendMessage(me.monkeykiller.customblocks.CustomBlocks.colorify(config.prefixes.prefix + "Block " + args[1] + " added sucessfully"));
             return true;
         } else {
             sender.sendMessage(ChatColor.RED + "Usage: /customblocks <add/reload>");

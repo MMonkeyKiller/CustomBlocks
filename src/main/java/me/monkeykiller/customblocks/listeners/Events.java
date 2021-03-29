@@ -1,9 +1,9 @@
 package me.monkeykiller.customblocks.listeners;
 
 import me.monkeykiller.customblocks.CustomBlock;
-import me.monkeykiller.customblocks.Main;
-import me.monkeykiller.customblocks.utils.ItemUtils;
+import me.monkeykiller.customblocks.Utils;
 import me.monkeykiller.customblocks.utils.NMSUtils;
+import me.monkeykiller.customblocks.utils.config;
 import net.minecraft.server.v1_16_R3.EntityPlayer;
 import net.minecraft.server.v1_16_R3.EnumHand;
 import net.minecraft.server.v1_16_R3.ItemActionContext;
@@ -23,7 +23,6 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.util.RayTraceResult;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,18 +63,14 @@ public class Events extends BaseEvent {
 
     @EventHandler
     public void onPistonExtends(BlockPistonExtendEvent event) {
-        for (Block b : event.getBlocks())
-            if (b.getType().equals(Material.NOTE_BLOCK))
-                event.setCancelled(true);
-
+        if (event.getBlocks().stream().anyMatch(b -> b.getType().equals(Material.NOTE_BLOCK)))
+            event.setCancelled(true);
     }
 
     @EventHandler
     public void onPistonRestract(BlockPistonRetractEvent event) {
-        for (Block b : event.getBlocks())
-            if (b.getType().equals(Material.NOTE_BLOCK))
-                event.setCancelled(true);
-
+        if (event.getBlocks().stream().anyMatch(b -> b.getType().equals(Material.NOTE_BLOCK)))
+            event.setCancelled(true);
     }
 
     @EventHandler
@@ -83,13 +78,13 @@ public class Events extends BaseEvent {
         event.setCancelled(true);
     }
 
-    private void placeAndCheckCB(PlayerInteractEvent event) throws NullPointerException {
+    private void placeAndCheckCB(PlayerInteractEvent event) {
         try {
             if (!event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
 
             Player p = event.getPlayer();
             PlayerInventory inv = p.getInventory();
-            ItemStack item = ItemUtils.getMaterialInHand(inv, Main.configData.cbiMaterial);
+            ItemStack item = Utils.Item.getMaterialInHand(inv, config.cbiMaterial);
 
             assert item != null;
             CustomBlock CB = CustomBlock.getCustomBlockbyItem(item);
@@ -97,14 +92,14 @@ public class Events extends BaseEvent {
             event.setCancelled(true);
 
 
-            if (Main.configData.clickable.contains(Objects.requireNonNull(event.getClickedBlock()).getType()) && !p.isSneaking()) {
+            if (config.clickable.contains(Objects.requireNonNull(event.getClickedBlock()).getType()) && !p.isSneaking()) {
                 event.setCancelled(false);
                 return;
             }
 
             Block placedBlock = event.getClickedBlock().getRelative(event.getBlockFace());
             Material replacedBlock = placedBlock.getType();
-            EnumHand handSlot = NMSUtils.parseEnumHand(ItemUtils.getEquipmentSlot(inv, item));
+            EnumHand handSlot = NMSUtils.parseEnumHand(Utils.Item.getEquipmentSlot(inv, item));
             EntityPlayer human = NMSUtils.parseHuman(p);
 
             if (REPLACE.contains(event.getClickedBlock().getType()) || (event.getClickedBlock().getType().equals(Material.SNOW) && ((Snow) event.getClickedBlock().getBlockData()).getLayers() == 1))
@@ -113,7 +108,7 @@ public class Events extends BaseEvent {
                 return;
             placedBlock.setType(Material.BARRIER);
 
-            BlockPlaceEvent e = new BlockPlaceEvent(placedBlock, placedBlock.getState(), event.getClickedBlock(), item, event.getPlayer(), true, Objects.requireNonNull(ItemUtils.getEquipmentSlot(inv, item)));
+            BlockPlaceEvent e = new BlockPlaceEvent(placedBlock, placedBlock.getState(), event.getClickedBlock(), item, event.getPlayer(), true, Objects.requireNonNull(Utils.Item.getEquipmentSlot(inv, item)));
             Bukkit.getPluginManager().callEvent(e);
             if (e.isCancelled()) return;
 
@@ -143,11 +138,12 @@ public class Events extends BaseEvent {
         }
         event.setCancelled(true);
 
-        PlayerInventory inv = event.getPlayer().getInventory();
-        ItemStack item = ItemUtils.getBlockOrCustomBlockInHand(inv);
+        Player player = event.getPlayer();
+        PlayerInventory inv = player.getInventory();
+        ItemStack item = Utils.Item.getBlockOrCustomBlockInHand(inv);
 
         if (item == null) return;
-        if (event.getPlayer().isSneaking()) {
+        if (player.isSneaking()) {
             event.setCancelled(false);
             return;
         }
@@ -155,20 +151,15 @@ public class Events extends BaseEvent {
         Block pblock = event.getClickedBlock().getRelative(event.getBlockFace());
 
         net.minecraft.server.v1_16_R3.ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
-        EnumHand hand = NMSUtils.parseEnumHand(ItemUtils.getEquipmentSlot(inv, item));
+        EnumHand hand = NMSUtils.parseEnumHand(Utils.Item.getEquipmentSlot(inv, item));
 
-        Location eyeLoc = event.getPlayer().getEyeLocation();
-        EntityPlayer human = NMSUtils.parseHuman(event.getPlayer());
+        Location eyeLoc = player.getEyeLocation();
+        EntityPlayer human = NMSUtils.parseHuman(player);
 
-        MovingObjectPositionBlock MOPB = new MovingObjectPositionBlock(NMSUtils.LocToVec(eyeLoc),
-                human.getDirection(), NMSUtils.BlockToBlockPos(pblock), false);
-
-        RayTraceResult rtr = pblock.getWorld().rayTraceBlocks(eyeLoc,
-                event.getPlayer().getLocation().getDirection(), 8, FluidCollisionMode.NEVER, true);
-        if (rtr == null) return;
-        Location interactionPoint = rtr.getHitPosition().subtract(Objects.requireNonNull(rtr.getHitBlock()).getLocation().toVector())
-                .toLocation(event.getPlayer().getWorld());
-        if (item.getType().equals(Main.configData.cbiMaterial))
+        MovingObjectPositionBlock MOPB = NMSUtils.getMOPB(player, pblock.getLocation(), false);
+        Location interactionPoint = Utils.getInteractionPoint(eyeLoc, 8, true);
+        assert interactionPoint != null;
+        if (item.getType().equals(config.cbiMaterial))
             placeAndCheckCB(event);
 
         if (REPLACE.contains(event.getClickedBlock().getType()) || (event.getClickedBlock().getType().equals(Material.SNOW) && ((Snow) event.getClickedBlock().getBlockData()).getLayers() == 1))
@@ -210,14 +201,12 @@ public class Events extends BaseEvent {
                 || event.getPlayer().getGameMode().equals(GameMode.CREATIVE))
             return;
 
-        if (event.isCancelled()) return;
+        if (event.isCancelled() || !(event.getBlock().getBlockData() instanceof NoteBlock)) return;
         NoteBlock NBData = (NoteBlock) event.getBlock().getBlockData();
-        if (!(event.getBlock().getBlockData() instanceof NoteBlock))
-            return;
         CustomBlock CB = CustomBlock.getCustomBlockbyData(NBData);
-        if (CB == null)
-            return;
+        assert CB != null;
         event.setDropItems(false);
+        event.setExpToDrop(0);
         CB.mine(event);
     }
 
@@ -227,14 +216,12 @@ public class Events extends BaseEvent {
         // A concurrent modification exception occurs when you edit a list whilst
         // looping through it
 
-        for (Block b : blockList)
-            if (b.getType() == Material.NOTE_BLOCK && CustomBlock.isCustomBlock(b)) {
-                event.blockList().remove(b);
-                CustomBlock CB = CustomBlock.getCustomBlockbyData((NoteBlock) b.getBlockData());
-                if (CB == null)
-                    return;
-                CB.mine(new BlockBreakEvent(b, b.getWorld().getPlayers().get(0)));
-                // b.getDrops().add(new ItemStack(Material.DIAMOND));
-            }
+        blockList.stream()
+                .filter(b -> b.getType() == Material.NOTE_BLOCK && CustomBlock.isCustomBlock(b))
+                .forEach(b -> {
+                    event.blockList().remove(b);
+                    CustomBlock CB = CustomBlock.getCustomBlockbyData((NoteBlock) b.getBlockData());
+                    if (CB != null) CB.mine(b);
+                });
     }
 }

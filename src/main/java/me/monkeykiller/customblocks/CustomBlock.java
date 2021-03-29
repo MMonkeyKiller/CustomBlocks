@@ -2,7 +2,7 @@ package me.monkeykiller.customblocks;
 
 import de.tr7zw.nbtapi.NBTContainer;
 import de.tr7zw.nbtapi.NBTItem;
-import me.monkeykiller.customblocks.utils.ItemUtils;
+import me.monkeykiller.customblocks.utils.config;
 import org.bukkit.Instrument;
 import org.bukkit.Material;
 import org.bukkit.Note;
@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class CustomBlock {
     public static List<CustomBlock> REGISTRY = new ArrayList<>();
@@ -28,9 +29,9 @@ public class CustomBlock {
     public boolean powered;
 
     public CustomBlock(@NotNull String id, int itemModelData, @NotNull Instrument instrument, int note, boolean powered) throws Exception {
-        if (getCustomBlockbyId(id) != null) {
+        if (getCustomBlockbyId(id) != null)
             throw new Exception("CustomBlock " + id + " already exists!");
-        }
+
         this.id = id;
         this.itemModelData = itemModelData;
         this.instrument = instrument;
@@ -46,16 +47,15 @@ public class CustomBlock {
     }
 
     public static CustomBlock getCustomBlockbyItem(@NotNull ItemStack item) {
-        String itemId = ItemUtils.getItemId(item);
+        String itemId = Utils.Item.getItemId(item);
         if (itemId == null) return null;
         return getCustomBlockbyId(itemId);
     }
 
     public static CustomBlock getCustomBlockbyData(NoteBlock data) {
-        for (CustomBlock CB : REGISTRY)
-            if (CB.compareData(data))
-                return CB;
-        return null;
+        return REGISTRY.stream()
+                .filter(CB -> CB.compareData(data))
+                .collect(Collectors.toList()).get(0);
     }
 
     public void place(BlockPlaceEvent event) {
@@ -64,8 +64,8 @@ public class CustomBlock {
 
     public void place(Block block) {
         block.setType(Material.NOTE_BLOCK, false);
-        if (!(block.getBlockData() instanceof NoteBlock))
-            return;
+        assert block.getBlockData() instanceof NoteBlock;
+
         NoteBlock state = (NoteBlock) block.getBlockData();
         state.setInstrument(instrument);
         state.setNote(new Note(note));
@@ -74,8 +74,12 @@ public class CustomBlock {
     }
 
     public void mine(BlockBreakEvent event) {
-        event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), this.getItemStack());
+        mine(event.getBlock());
         event.setExpToDrop(0);
+    }
+
+    public void mine(@NotNull Block block) {
+        block.getWorld().dropItemNaturally(block.getLocation(), this.getItemStack());
     }
 
     public boolean compareData(NoteBlock data) {
@@ -83,14 +87,13 @@ public class CustomBlock {
     }
 
     public ItemStack getItemStack() {
-        NBTItem nbtc = new NBTItem(new ItemStack(Main.configData.cbiMaterial));
+        NBTItem nbtc = new NBTItem(new ItemStack(config.cbiMaterial));
         nbtc.mergeCompound(new NBTContainer(String.format("{CustomModelData: %s, display:{Name:'{\"translate\":\"%s\", \"italic\": false}'}, ItemId:\"%s\"}", itemModelData, "customblocks.item." + id + ".name", id)));
         return nbtc.getItem();
     }
 
     public static boolean isCustomBlock(Block b) {
-        if (!(b.getBlockData() instanceof NoteBlock))
-            return false;
+        assert b.getBlockData() instanceof NoteBlock;
         NoteBlock data = (NoteBlock) b.getBlockData();
         return !data.getNote().equals(new Note(0));
     }
@@ -110,12 +113,11 @@ public class CustomBlock {
         return serialized;
     }
 
-    public static CustomBlock deserialize(Map<String, Object> deserialize) throws Exception {
+    public static void deserialize(Map<String, Object> deserialize) {
         try {
-            return new CustomBlock((String) deserialize.get("id"), (int) deserialize.get("itemModelData"), Instrument.valueOf((String) deserialize.get("instrument")), (int) deserialize.get("note"), (boolean) deserialize.get("powered"));
-        } catch (Exception err) {
-            err.printStackTrace();
+            new CustomBlock((String) deserialize.get("id"), (int) deserialize.get("itemModelData"), Instrument.valueOf((String) deserialize.get("instrument")), (int) deserialize.get("note"), (boolean) deserialize.get("powered"));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return null;
     }
 }
