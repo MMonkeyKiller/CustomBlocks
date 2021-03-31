@@ -1,4 +1,4 @@
-package me.monkeykiller.customblocks.utils;
+package me.monkeykiller.customblocks.config;
 
 import org.bukkit.Material;
 

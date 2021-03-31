@@ -2,7 +2,8 @@ package me.monkeykiller.customblocks;
 
 import de.tr7zw.nbtapi.NBTContainer;
 import de.tr7zw.nbtapi.NBTItem;
-import me.monkeykiller.customblocks.utils.config;
+import me.monkeykiller.customblocks.config.config;
+import me.monkeykiller.customblocks.utils.ItemUtils;
 import org.bukkit.Instrument;
 import org.bukkit.Material;
 import org.bukkit.Note;
@@ -17,7 +18,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class CustomBlock {
     public static List<CustomBlock> REGISTRY = new ArrayList<>();
@@ -30,7 +30,9 @@ public class CustomBlock {
 
     public CustomBlock(@NotNull String id, int itemModelData, @NotNull Instrument instrument, int note, boolean powered) throws Exception {
         if (getCustomBlockbyId(id) != null)
-            throw new Exception("CustomBlock " + id + " already exists!");
+            throw new Exception("CustomBlock with id \"" + id + "\" already exists!");
+        if (getCustomBlockbyData(instrument, note, powered) != null)
+            throw new Exception("CustomBlock with id \"" + id + "\" has the same data as \"" + getCustomBlockbyData(instrument, note, powered).id + "\"");
 
         this.id = id;
         this.itemModelData = itemModelData;
@@ -47,15 +49,23 @@ public class CustomBlock {
     }
 
     public static CustomBlock getCustomBlockbyItem(@NotNull ItemStack item) {
-        String itemId = Utils.Item.getItemId(item);
+        String itemId = ItemUtils.getItemId(item);
         if (itemId == null) return null;
         return getCustomBlockbyId(itemId);
     }
 
     public static CustomBlock getCustomBlockbyData(NoteBlock data) {
-        return REGISTRY.stream()
-                .filter(CB -> CB.compareData(data))
-                .collect(Collectors.toList()).get(0);
+        for (CustomBlock CB : REGISTRY)
+            if (CB.compareData(data))
+                return CB;
+        return null;
+    }
+
+    public static CustomBlock getCustomBlockbyData(@NotNull Instrument instrument, int note, boolean powered) {
+        for (CustomBlock CB : REGISTRY)
+            if (CB.compareData(instrument, note, powered))
+                return CB;
+        return null;
     }
 
     public void place(BlockPlaceEvent event) {
@@ -84,6 +94,10 @@ public class CustomBlock {
 
     public boolean compareData(NoteBlock data) {
         return data.getInstrument() == instrument && data.getNote().equals(new Note(note)) && data.isPowered() == powered;
+    }
+
+    public boolean compareData(@NotNull Instrument instrument, int note, boolean powered) {
+        return instrument == this.instrument && new Note(note).equals(new Note(this.note)) && powered == this.powered;
     }
 
     public ItemStack getItemStack() {

@@ -6,10 +6,10 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import me.monkeykiller.customblocks.CustomBlocks;
+import me.monkeykiller.customblocks.CBPlugin;
 import org.bukkit.command.PluginCommand;
 
-public class brigadierUtils {
+public class BrigadierUtils {
     public static void registerCompletions(PluginCommand command) {
         try {
             LiteralCommandNode<Object> add = LiteralArgumentBuilder.literal("add")
@@ -22,7 +22,7 @@ public class brigadierUtils {
                                     )
                             )
                     ).build();
-            CustomBlocks.commodore.register(command, LiteralArgumentBuilder.literal(command.getName())
+            CBPlugin.commodore.register(command, LiteralArgumentBuilder.literal(command.getName())
                     .then(LiteralArgumentBuilder.literal("reload"))
                     .then(add)
                     .build());

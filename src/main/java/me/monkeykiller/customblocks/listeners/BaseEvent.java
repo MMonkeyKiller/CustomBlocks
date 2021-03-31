@@ -1,13 +1,13 @@
 package me.monkeykiller.customblocks.listeners;
 
-import me.monkeykiller.customblocks.CustomBlocks;
+import me.monkeykiller.customblocks.CBPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 
 public class BaseEvent implements Listener {
-    protected CustomBlocks plugin;
+    protected CBPlugin plugin;
     public BaseEvent() {
-        this.plugin = CustomBlocks.plugin;
+        this.plugin = CBPlugin.plugin;
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 }

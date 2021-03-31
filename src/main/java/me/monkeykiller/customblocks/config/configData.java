@@ -1,7 +1,7 @@
-package me.monkeykiller.customblocks.utils;
+package me.monkeykiller.customblocks.config;
 
 import me.monkeykiller.customblocks.CustomBlock;
-import me.monkeykiller.customblocks.CustomBlocks;
+import me.monkeykiller.customblocks.CBPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -11,21 +11,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static me.monkeykiller.customblocks.utils.config.clickable;
+import static me.monkeykiller.customblocks.config.config.clickable;
 
 @SuppressWarnings("unchecked")
 public class configData {
-    public static CustomBlocks plugin;
+    protected static CBPlugin plugin;
 
-    public void setPlugin(CustomBlocks javaPlugin) {
+    public void setPlugin(CBPlugin javaPlugin) {
         plugin = javaPlugin;
     }
 
     public void loadConfig() {
         try {
-            config.prefixes.prefix = CustomBlocks.colorify("&e" + CustomBlocks.pluginInfo.name + " &8> &7");    // TODO: TEMPORAL, WAITING FOR messages.yml
-            config.prefixes.warn = CustomBlocks.colorify("&eWarning &8> &7");
-            config.cbksGUITitle = CustomBlocks.colorify("&6Custom Blocks GUI");
+            config.prefixes.prefix = CBPlugin.colorify("&e" + CBPlugin.pluginInfo.name + " &8> &7");    // TODO: TEMPORAL, WAITING FOR messages.yml
+            config.prefixes.warn = CBPlugin.colorify("&eWarning &8> &7");
+            config.cbksGUITitle = CBPlugin.colorify("&6Custom Blocks GUI");
             config.debug_mode = config().getBoolean("debug_mode");
             if (config.debug_mode)
                 System.out.println(config.prefixes.warn + "debug_mode has been enabled.");

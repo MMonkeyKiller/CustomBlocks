@@ -3,15 +3,16 @@ package me.monkeykiller.customblocks;
 import com.sk89q.worldedit.WorldEdit;
 import me.lucko.commodore.Commodore;
 import me.lucko.commodore.CommodoreProvider;
+import me.monkeykiller.customblocks.commands.BaseCommand;
+import me.monkeykiller.customblocks.commands.CBCommand;
 import me.monkeykiller.customblocks.commands.CBMenu;
-import me.monkeykiller.customblocks.commands.Commands;
+import me.monkeykiller.customblocks.config.config;
+import me.monkeykiller.customblocks.config.configData;
 import me.monkeykiller.customblocks.libs.worldedit.Parser;
 import me.monkeykiller.customblocks.libs.worldedit.WEListener;
 import me.monkeykiller.customblocks.listeners.Events;
 import me.monkeykiller.customblocks.listeners.InventoryEvents;
-import me.monkeykiller.customblocks.utils.brigadierUtils;
-import me.monkeykiller.customblocks.utils.config;
-import me.monkeykiller.customblocks.utils.configData;
+import me.monkeykiller.customblocks.utils.BrigadierUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -20,18 +21,18 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Objects;
 
-public final class CustomBlocks extends JavaPlugin {
-    public static CustomBlocks plugin;
+public final class CBPlugin extends JavaPlugin {
+    public static CBPlugin plugin;
     public static configData configData;
     public static Commodore commodore;
 
     public PluginDescriptionFile pdfFile = getDescription();
 
     public static class pluginInfo {
-        public static String name = CustomBlocks.plugin.pdfFile.getPrefix() != null ?
-                CustomBlocks.plugin.pdfFile.getPrefix() :
-                CustomBlocks.plugin.pdfFile.getName();
-        public static String version = CustomBlocks.plugin.pdfFile.getVersion();
+        public static String name = CBPlugin.plugin.pdfFile.getPrefix() != null ?
+                CBPlugin.plugin.pdfFile.getPrefix() :
+                CBPlugin.plugin.pdfFile.getName();
+        public static String version = CBPlugin.plugin.pdfFile.getVersion();
     }
 
     public PluginManager pm = Bukkit.getPluginManager();
@@ -85,13 +86,13 @@ public final class CustomBlocks extends JavaPlugin {
         /*Commands.REGISTRY.stream()
                 .map(CBCommand::parseCommand)
                 .forEach(brigadierUtils::registerCompletions);*/
-        brigadierUtils.registerCompletions(Objects.requireNonNull(Commands.getCommand("CustomBlocks"))
+        BrigadierUtils.registerCompletions(Objects.requireNonNull(BaseCommand.getCommand("customblocks"))
                 .parseCommand());
     }
 
     private void setupCommands() {
-        Commands.REGISTRY.add(new me.monkeykiller.customblocks.commands.CustomBlocks());
-        Commands.REGISTRY.add(new CBMenu());
+        BaseCommand.REGISTRY.add(new CBCommand());
+        BaseCommand.REGISTRY.add(new CBMenu());
     }
 
     private void checkNBTApi() {
