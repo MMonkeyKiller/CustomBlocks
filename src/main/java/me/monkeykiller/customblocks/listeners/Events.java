@@ -25,14 +25,12 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class Events extends BaseEvent {
     private final List<Material> REPLACE = Arrays.asList(Material.AIR, Material.CAVE_AIR, Material.VOID_AIR,
             Material.GRASS, Material.SEAGRASS, Material.SNOW, Material.WATER, Material.LAVA);
+    private final List<UUID> antiFastPlace = new ArrayList<>();
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     private void onBlockPhysics(BlockPhysicsEvent event) {
@@ -67,7 +65,7 @@ public class Events extends BaseEvent {
     }
 
     @EventHandler
-    public void onPistonRestract(BlockPistonRetractEvent event) {
+    public void onPistonRetract(BlockPistonRetractEvent event) {
         if (event.getBlocks().stream().anyMatch(b -> b.getType().equals(Material.NOTE_BLOCK)))
             event.setCancelled(true);
     }
@@ -77,9 +75,9 @@ public class Events extends BaseEvent {
         event.setCancelled(true);
     }
 
-    private void placeAndCheckCB(PlayerInteractEvent event) {
+    private boolean placeAndCheckCB(PlayerInteractEvent event) {
         try {
-            if (!event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
+            if (!event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return false;
 
             Player p = event.getPlayer();
             PlayerInventory inv = p.getInventory();
@@ -87,13 +85,13 @@ public class Events extends BaseEvent {
             assert !ItemUtils.isAirOrNull(item) && event.getClickedBlock() != null;
 
             CustomBlock CB = CustomBlock.getCustomBlockbyItem(item);
-            if (CB == null) return;
+            if (CB == null) return false;
             event.setCancelled(true);
 
 
             if (config.clickable.contains(event.getClickedBlock().getType()) && !p.isSneaking()) {
                 event.setCancelled(false);
-                return;
+                return false;
             }
 
             Block placedBlock = event.getClickedBlock().getRelative(event.getBlockFace());
@@ -104,18 +102,19 @@ public class Events extends BaseEvent {
             if (REPLACE.contains(event.getClickedBlock().getType()) || (event.getClickedBlock().getType().equals(Material.SNOW) && ((Snow) event.getClickedBlock().getBlockData()).getLayers() == 1))
                 placedBlock = event.getClickedBlock();
             else if (!REPLACE.contains(placedBlock.getType()))
-                return;
+                return false;
             placedBlock.setType(Material.BARRIER);
 
             BlockPlaceEvent e = new BlockPlaceEvent(placedBlock, placedBlock.getState(), event.getClickedBlock(), item, event.getPlayer(), true, Objects.requireNonNull(ItemUtils.getEquipmentSlot(inv, item)));
             Bukkit.getPluginManager().callEvent(e);
-            if (e.isCancelled()) return;
+            if (e.isCancelled()) return false;
 
             CB.place(e);
             if (!placedBlock.getWorld().getNearbyEntities(placedBlock.getBoundingBox(), entity -> !(entity instanceof Item)).isEmpty()) {
                 placedBlock.setType(replacedBlock);
-                return;
+                return false;
             }
+            human.swingHand(handSlot, false);
             human.swingHand(handSlot, true);
 
             if (!event.getPlayer().getGameMode().equals(GameMode.CREATIVE))
@@ -125,7 +124,9 @@ public class Events extends BaseEvent {
 
         } catch (NullPointerException e) {
             e.printStackTrace();
+            return false;
         }
+        return true;
     }
 
     @EventHandler
@@ -159,8 +160,13 @@ public class Events extends BaseEvent {
         MovingObjectPositionBlock MOPB = NMSUtils.getMOPB(player, pblock.getLocation(), false);
         Location interactionPoint = Utils.getInteractionPoint(eyeLoc, 8, true);
         assert interactionPoint != null;
-        if (item.getType().equals(config.cbiMaterial))
-            placeAndCheckCB(event);
+        if (item.getType().equals(config.cbiMaterial)) {
+            if (antiFastPlace.contains(player.getUniqueId())) return;
+
+            if (!placeAndCheckCB(event)) return;
+            antiFastPlace.add(player.getUniqueId());
+            Bukkit.getScheduler().runTaskLater(plugin, () -> antiFastPlace.remove(player.getUniqueId()), 6L);
+        }
 
         if (REPLACE.contains(event.getClickedBlock().getType()) || (event.getClickedBlock().getType().equals(Material.SNOW) && ((Snow) event.getClickedBlock().getBlockData()).getLayers() == 1))
             pblock = event.getClickedBlock();
@@ -201,7 +207,11 @@ public class Events extends BaseEvent {
                 || event.getPlayer().getGameMode().equals(GameMode.CREATIVE))
             return;
 
-        if (event.isCancelled() || !(event.getBlock().getBlockData() instanceof NoteBlock)) return;
+        if (event.isCancelled()) {
+            if (config.debug_mode)
+                plugin.getLogger().warning("[DEBUG] " + event.getPlayer().getName() + " tried to break a block, Event previously cancelled by another process");
+            return;
+        }
         NoteBlock NBData = (NoteBlock) event.getBlock().getBlockData();
         CustomBlock CB = CustomBlock.getCustomBlockbyData(NBData);
         assert CB != null;

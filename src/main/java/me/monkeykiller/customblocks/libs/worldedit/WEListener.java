@@ -5,8 +5,8 @@ import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.event.extent.EditSessionEvent;
 import com.sk89q.worldedit.util.eventbus.EventHandler.Priority;
 import com.sk89q.worldedit.util.eventbus.Subscribe;
-import me.monkeykiller.customblocks.CustomBlock;
 import me.monkeykiller.customblocks.CBPlugin;
+import me.monkeykiller.customblocks.CustomBlock;
 import me.monkeykiller.customblocks.config.config;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -19,8 +19,15 @@ import org.bukkit.event.server.PluginEnableEvent;
 @SuppressWarnings("unused")
 public class WEListener implements Listener {
 
-    public WEListener() {
+    @SuppressWarnings("unchecked")
+    public void loadWE() {
+        WorldEdit.getInstance().getEventBus().register(this);
+        WorldEdit.getInstance().getBlockFactory().register(new Parser(WorldEdit.getInstance()));
         Bukkit.getPluginManager().registerEvents(this, CBPlugin.plugin);
+    }
+
+    public void unloadWE() {
+        WorldEdit.getInstance().getEventBus().unregister(this);
     }
 
     @Subscribe(priority = Priority.VERY_LATE)

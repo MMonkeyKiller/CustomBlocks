@@ -2,9 +2,9 @@ package me.monkeykiller.customblocks.commands;
 
 import me.monkeykiller.customblocks.CBPlugin;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("unused")
-public class BaseCommand implements CommandExecutor {
+public class BaseCommand implements TabExecutor {
     public static List<BaseCommand> REGISTRY = new ArrayList<>();
 
     public String name;
@@ -22,10 +22,10 @@ public class BaseCommand implements CommandExecutor {
     public BaseCommand(@NotNull String name, @Nullable List<String> aliases) {
         this.name = name;
         this.aliases = aliases;
-        //Main.plugin.getCommand(name).setTabCompleter(this);
         PluginCommand cmd = CBPlugin.plugin.getCommand(name);
         assert cmd != null;
         cmd.setExecutor(this);
+        cmd.setTabCompleter(this);
     }
 
     @Override
