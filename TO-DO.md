@@ -17,4 +17,4 @@
 | Make independent from nbtapi | 1 |
 | ~~Repair commodore integration~~ | ~~1~~ |
 
-`When everything in the list with an importance level greater than 3 is complete, an official release will be created on the main branch`
+`When everything in the list with an importance level greater than 2 is complete, an official release will be created on the main branch`

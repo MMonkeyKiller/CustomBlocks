@@ -207,11 +207,7 @@ public class Events extends BaseEvent {
                 || event.getPlayer().getGameMode().equals(GameMode.CREATIVE))
             return;
 
-        if (event.isCancelled()) {
-            if (config.debug_mode)
-                plugin.getLogger().warning("[DEBUG] " + event.getPlayer().getName() + " tried to break a block, Event previously cancelled by another process");
-            return;
-        }
+        if (event.isCancelled()) return;
         NoteBlock NBData = (NoteBlock) event.getBlock().getBlockData();
         CustomBlock CB = CustomBlock.getCustomBlockbyData(NBData);
         assert CB != null;
