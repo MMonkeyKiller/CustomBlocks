@@ -54,7 +54,8 @@ public class Events extends BaseEvent {
             event.setCancelled(true);
         }
         if (b.getType() == Material.NOTE_BLOCK) event.setCancelled(true);
-        if (!Tag.SIGNS.isTagged(b.getType())) b.getState().update(true, false);
+        if (!Tag.SIGNS.isTagged(b.getType()) && !b.getType().equals(Material.LECTERN))
+            b.getState().update(true, false);
 
     }
 
