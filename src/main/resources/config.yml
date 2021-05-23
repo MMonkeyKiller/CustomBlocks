@@ -1,3 +1,7 @@
+prefixes:
+  prefix: "&eCustomBlocks&8> &7"
+  warn: "&eWarning &8> &7"
+gui_title: "&6Custom Blocks GUI"
 blocks:
   - id: "customblocks:example"
     itemModelData: 1001

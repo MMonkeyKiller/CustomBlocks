@@ -1,10 +1,11 @@
 package me.monkeykiller.customblocks.config;
 
-import me.monkeykiller.customblocks.CustomBlock;
 import me.monkeykiller.customblocks.CBPlugin;
+import me.monkeykiller.customblocks.CustomBlock;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,9 +24,9 @@ public class configData {
 
     public void loadConfig() {
         try {
-            config.prefixes.prefix = CBPlugin.colorify("&e" + CBPlugin.pluginInfo.name + " &8> &7");    // TODO: TEMPORAL, WAITING FOR messages.yml
-            config.prefixes.warn = CBPlugin.colorify("&eWarning &8> &7");
-            config.cbksGUITitle = CBPlugin.colorify("&6Custom Blocks GUI");
+            config.prefixes.prefix = getColorizedConfig("prefixes.prefix");    // TODO: TEMPORAL, WAITING FOR messages.yml
+            config.prefixes.warn = getColorizedConfig("prefixes.warn");
+            config.cbksGUITitle = getColorizedConfig("gui_title");
             config.debug_mode = config().getBoolean("debug_mode");
             if (config.debug_mode)
                 System.out.println(config.prefixes.warn + "debug_mode has been enabled.");
@@ -34,7 +35,7 @@ public class configData {
 
             loadClickableMaterials();
             loadBlocks();
-            System.out.println(config.prefixes.prefix + "Configuration loaded");
+            // System.out.println(config.prefixes.prefix + "Configuration loaded");
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -46,7 +47,7 @@ public class configData {
     public void reloadConfig() {
         plugin.reloadConfig();  // reload config.yml file
         loadConfig();
-        System.out.println(config.prefixes.prefix + "Configuration reloaded");
+        // System.out.println(config.prefixes.prefix + "Configuration reloaded");
     }
 
     public void loadBlocks() {
@@ -57,7 +58,7 @@ public class configData {
             config.blocks.forEach(CustomBlock::deserialize);
             System.out.println(config.prefixes.prefix + "Loaded " + CustomBlock.REGISTRY.size() + " Custom Blocks");
             CustomBlock.REGISTRY.stream()
-                    .map(cb -> " - " + cb.id)
+                    .map(cb -> " - " + cb.id + (cb.cbItem != null ? " (" + cb.cbItem.toString() + ")" : ""))
                     .forEach(System.out::println);
         } catch (Exception e) {
             e.printStackTrace();
@@ -81,4 +82,16 @@ public class configData {
         return plugin.getConfig();
     }
 
+    public static String getColorizedConfig(@NotNull String configKey) throws ConfigException {
+        if (!config().contains(configKey)) throw new ConfigException(configKey, "Config not found");
+        if (!config().isString(configKey))
+            throw new ConfigException(configKey, "Invalid config type, Expected: String");
+        return CBPlugin.colorify(config().getString(configKey));
+    }
+
+    public static class ConfigException extends Exception {
+        public ConfigException(String key, String error) {
+            super("Error while loading '" + key + "': " + error);
+        }
+    }
 }

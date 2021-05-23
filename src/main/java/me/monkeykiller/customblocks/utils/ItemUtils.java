@@ -2,6 +2,7 @@ package me.monkeykiller.customblocks.utils;
 
 import de.tr7zw.nbtapi.NBTItem;
 import me.monkeykiller.customblocks.CustomBlock;
+import me.monkeykiller.customblocks.config.config;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.EquipmentSlot;
@@ -56,5 +57,19 @@ public class ItemUtils {
 
     public static String getItemId(ItemStack item) {
         return item != null ? new NBTItem(item).getString("ItemId") : null;
+    }
+
+    public static ItemStack getFirstCustomBlockInHand(@NotNull PlayerInventory inv) {
+        ItemStack[] hands = new ItemStack[]{inv.getItemInMainHand(), inv.getItemInOffHand()};
+
+        for (ItemStack i : hands) {
+            if (ItemUtils.isAirOrNull(i)) continue;
+            CustomBlock CB = CustomBlock.getCustomBlockbyItem(i);
+            if(CB == null) continue;
+            Material expected = CB.cbItem != null ? CB.cbItem : config.cbiMaterial;
+            if (i.getType() == expected)
+                return i;
+        }
+        return null;
     }
 }
