@@ -133,15 +133,21 @@ public class Events extends BaseEvent {
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         assert event.getClickedBlock() != null;
-        if (!event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
+        if (!event.getAction().equals(Action.RIGHT_CLICK_BLOCK) || !event.getClickedBlock().getType().equals(Material.NOTE_BLOCK)) {
+            CBCooldown(event);
+            return;
+        }
 
         event.setCancelled(true);
-
         Player player = event.getPlayer();
         PlayerInventory inv = player.getInventory();
         ItemStack item = ItemUtils.getBlockOrCustomBlockInHand(inv);
 
-        if (item == null) return;
+        if (item == null) {
+            if (player.isSneaking())
+                event.setCancelled(false);
+            return;
+        }
 
         Block pblock = event.getClickedBlock().getRelative(event.getBlockFace());
 
@@ -154,14 +160,7 @@ public class Events extends BaseEvent {
         MovingObjectPositionBlock MOPB = NMSUtils.getMOPB(player, pblock.getLocation(), false);
         Location interactionPoint = Utils.getInteractionPoint(eyeLoc, 8, true);
         assert interactionPoint != null;
-        if (ItemUtils.getFirstCustomBlockInHand(inv) != null) {
-            if (antiFastPlace.contains(player.getUniqueId())) return;
-            if (!placeAndCheckCB(event)) return;
-
-            antiFastPlace.add(player.getUniqueId());
-
-            Bukkit.getScheduler().runTaskLater(plugin, () -> antiFastPlace.remove(player.getUniqueId()), 3L);
-        }
+        if (ItemUtils.getFirstCustomBlockInHand(inv) != null) CBCooldown(event);
 
         if (REPLACE.contains(event.getClickedBlock().getType()) || (event.getClickedBlock().getType().equals(Material.SNOW) && ((Snow) event.getClickedBlock().getBlockData()).getLayers() == 1))
             pblock = event.getClickedBlock();
@@ -226,5 +225,15 @@ public class Events extends BaseEvent {
                         CB.mine(b);
                     b.setType(Material.AIR);
                 });
+    }
+
+    public void CBCooldown(PlayerInteractEvent event) {
+        UUID uuid = event.getPlayer().getUniqueId();
+        if (antiFastPlace.contains(uuid)) return;
+        if (!placeAndCheckCB(event)) return;
+
+        antiFastPlace.add(uuid);
+
+        Bukkit.getScheduler().runTaskLater(plugin, () -> antiFastPlace.remove(uuid), 3L);
     }
 }
