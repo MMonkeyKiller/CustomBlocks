@@ -95,7 +95,7 @@ public class CustomBlock {
     }
 
     public void mine(@NotNull Block block) {
-        block.getWorld().dropItemNaturally(block.getLocation(), this.getItemStack());
+        block.getWorld().dropItemNaturally(block.getLocation(), this.getItemStack(false));
     }
 
     public boolean compareData(NoteBlock data) {
@@ -106,9 +106,9 @@ public class CustomBlock {
         return instrument == this.instrument && new Note(note).equals(new Note(this.note)) && powered == this.powered;
     }
 
-    public ItemStack getItemStack() {
+    public ItemStack getItemStack(boolean visibleBlockId) {
         NBTItem nbtc = new NBTItem(new ItemStack(cbItem != null ? cbItem : config.cbiMaterial));
-        nbtc.mergeCompound(new NBTContainer(String.format("{CustomModelData: %s, display:{Name:'{\"translate\":\"%s\", \"italic\": false}'}, ItemId:\"%s\"}", itemModelData, "customblocks.item." + id + ".name", id)));
+        nbtc.mergeCompound(new NBTContainer(String.format("{CustomModelData: %s, display:{Name:'{\"translate\":\"%s\", \"italic\": false}'" + (visibleBlockId ? ", Lore: ['{\"text\": \"" + id + "\", \"color\": \"dark_gray\", \"italic\": false}']" : "") + "}, ItemId:\"%s\"}", itemModelData, "customblocks.item." + id + ".name", id)));
         return nbtc.getItem();
     }
 
