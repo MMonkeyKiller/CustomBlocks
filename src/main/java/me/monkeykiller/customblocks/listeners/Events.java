@@ -29,7 +29,7 @@ import java.util.*;
 
 public class Events extends BaseEvent {
     private final List<Material> REPLACE = Arrays.asList(Material.AIR, Material.CAVE_AIR, Material.VOID_AIR,
-            Material.GRASS, Material.SEAGRASS, Material.SNOW, Material.WATER, Material.LAVA);
+            Material.GRASS, Material.SEAGRASS, Material.WATER, Material.LAVA);
     private final List<UUID> antiFastPlace = new ArrayList<>();
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -144,7 +144,7 @@ public class Events extends BaseEvent {
         ItemStack item = ItemUtils.getBlockOrCustomBlockInHand(inv);
 
         if (item == null) {
-            if (player.isSneaking())
+            if (player.isSneaking() && !ItemUtils.isAirOrNull(player.getInventory().getItemInMainHand()))
                 event.setCancelled(false);
             return;
         }
