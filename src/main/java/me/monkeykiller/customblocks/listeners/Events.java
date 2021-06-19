@@ -1,6 +1,7 @@
 package me.monkeykiller.customblocks.listeners;
 
 import me.monkeykiller.customblocks.CustomBlock;
+import me.monkeykiller.customblocks.Interactable;
 import me.monkeykiller.customblocks.config.config;
 import me.monkeykiller.customblocks.utils.ItemUtils;
 import me.monkeykiller.customblocks.utils.NMSUtils;
@@ -82,7 +83,7 @@ public class Events extends BaseEvent {
 
             Player p = event.getPlayer();
             PlayerInventory inv = p.getInventory();
-            ItemStack item = ItemUtils.getFirstCustomBlockInHand(inv);//.getMaterialInHand(inv, config.cbiMaterial);
+            ItemStack item = ItemUtils.getFirstCustomBlockInHand(inv);
             assert !ItemUtils.isAirOrNull(item) && event.getClickedBlock() != null;
 
             CustomBlock CB = CustomBlock.getCustomBlockbyItem(item);
@@ -139,12 +140,20 @@ public class Events extends BaseEvent {
         }
 
         event.setCancelled(true);
+        if (!antiFastPlace.contains(event.getPlayer().getUniqueId()) && CustomBlock.isCustomBlock(event.getClickedBlock()) && !(event.getPlayer().isSneaking() && !ItemUtils.isAirOrNull(event.getPlayer().getInventory().getItemInMainHand()))) {
+            CustomBlock cb = CustomBlock.getCustomBlockbyData((NoteBlock) event.getClickedBlock().getBlockData());
+            if (cb instanceof Interactable) {
+                ((Interactable) cb).onInteract(event.getPlayer(), event.getClickedBlock());
+                return;
+            }
+        }
+
         Player player = event.getPlayer();
         PlayerInventory inv = player.getInventory();
         ItemStack item = ItemUtils.getBlockOrCustomBlockInHand(inv);
 
         if (item == null) {
-            if (player.isSneaking() && !ItemUtils.isAirOrNull(player.getInventory().getItemInMainHand()))
+            if (player.isSneaking() && !ItemUtils.isAirOrNull(inv.getItemInMainHand()))
                 event.setCancelled(false);
             return;
         }

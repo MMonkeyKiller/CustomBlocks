@@ -10,37 +10,35 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Objects;
-
 public class InventoryEvents extends BaseEvent {
 
     @EventHandler
     private void onInventoryClick(InventoryClickEvent event) {
         Inventory inv = event.getClickedInventory();
-        assert inv != null;
-        if (event.getCurrentItem() == null || inv.getItem(event.getSlot()) == null) return;
-        ItemStack item = inv.getItem(event.getSlot());
-        if (event.getView().getBottomInventory().equals(event.getClickedInventory()) || ItemUtils.isAirOrNull(item))
+        int slot = event.getSlot();
+        if (!event.getView().getTitle().startsWith(config.cbksGUITitle)
+                || inv == null || event.getCurrentItem() == null || inv.getItem(slot) == null) return;
+        ItemStack item = inv.getItem(slot);
+        if (inv != event.getView().getTopInventory() || ItemUtils.isAirOrNull(item))
             return;
-        if (!event.getView().getTitle().startsWith(config.cbksGUITitle)) return;
-        item = Objects.requireNonNull(CustomBlock.getCustomBlockbyItem(item)).getItemStack(false);
+
+        CustomBlock cb = CustomBlock.getCustomBlockbyItem(item);
         Player player = (Player) event.getView().getPlayer();
 
         event.setCancelled(true);
-
-        if (event.getSlot() < 45) {
+        if (cb != null && event.getSlot() < 45) {
+            item = cb.getItemStack();
             if (event.getClick().isShiftClick())
                 item.setAmount(64);
             player.getInventory().addItem(item);
-        } else {
-            int page = CustomBlocksGUI.savedPages.get(player.getUniqueId());
-            if (event.getSlot() == 45)  // back btn
-                CustomBlocksGUI.open(player, page - 1);
-            else if (event.getSlot() == 49 && event.isLeftClick())  // info btn
-                CustomBlocksGUI.open(player, 1);
-            else if (event.getSlot() == 53)  // next btn
-                CustomBlocksGUI.open(player, page + 1);
+            return;
         }
+
+        int page = CustomBlocksGUI.savedPages.getOrDefault(player.getUniqueId(), 1);
+        if (event.getSlot() == 45) CustomBlocksGUI.open(player, page - 1);
+        else if (event.getSlot() == 49 && event.isLeftClick())
+            CustomBlocksGUI.open(player, 1);
+        else if (event.getSlot() == 53) CustomBlocksGUI.open(player, page + 1);
     }
 
 }

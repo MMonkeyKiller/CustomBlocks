@@ -2,6 +2,7 @@ package me.monkeykiller.customblocks.config;
 
 import me.monkeykiller.customblocks.CBPlugin;
 import me.monkeykiller.customblocks.CustomBlock;
+import me.monkeykiller.customblocks.api.CBLoadEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -17,12 +18,15 @@ import static me.monkeykiller.customblocks.config.config.clickable;
 @SuppressWarnings("unchecked")
 public class configData {
     protected static CBPlugin plugin;
-
     public void setPlugin(CBPlugin javaPlugin) {
         plugin = javaPlugin;
     }
 
     public void loadConfig() {
+        loadConfig(false);
+    }
+
+    public void loadConfig(boolean reloaded) {
         try {
             config.prefixes.prefix = getColorizedConfig("prefixes.prefix");    // TODO: TEMPORAL, WAITING FOR messages.yml
             config.prefixes.warn = getColorizedConfig("prefixes.warn");
@@ -35,19 +39,18 @@ public class configData {
 
             loadClickableMaterials();
             loadBlocks();
-            // System.out.println(config.prefixes.prefix + "Configuration loaded");
 
         } catch (Exception ex) {
             ex.printStackTrace();
             System.out.println(config.prefixes.warn + "An exception ocurred while loading config.yml, disabling plugin\n");
             Bukkit.getPluginManager().disablePlugin(plugin);
         }
+        Bukkit.getPluginManager().callEvent(new CBLoadEvent(reloaded));
     }
 
     public void reloadConfig() {
         plugin.reloadConfig();  // reload config.yml file
-        loadConfig();
-        // System.out.println(config.prefixes.prefix + "Configuration reloaded");
+        loadConfig(true);
     }
 
     public void loadBlocks() {
@@ -58,7 +61,7 @@ public class configData {
             config.blocks.forEach(CustomBlock::deserialize);
             System.out.println(config.prefixes.prefix + "Loaded " + CustomBlock.REGISTRY.size() + " Custom Blocks");
             CustomBlock.REGISTRY.stream()
-                    .map(cb -> " - " + cb.id + (cb.cbItem != null ? " (" + cb.cbItem.toString() + ")" : ""))
+                    .map(cb -> " - " + cb.id + (cb.cbItem != null ? " (" + cb.cbItem + ")" : ""))
                     .forEach(System.out::println);
         } catch (Exception e) {
             e.printStackTrace();

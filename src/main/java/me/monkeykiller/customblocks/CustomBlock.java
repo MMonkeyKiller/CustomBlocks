@@ -39,7 +39,6 @@ public class CustomBlock {
         this.instrument = instrument;
         this.note = note;
         this.powered = powered;
-        REGISTRY.add(this);
     }
 
     public CustomBlock(@NotNull String id, int itemModelData, @NotNull Instrument instrument, int note, boolean powered, @Nullable Material cbItem) throws Exception {
@@ -106,6 +105,10 @@ public class CustomBlock {
         return instrument == this.instrument && new Note(note).equals(new Note(this.note)) && powered == this.powered;
     }
 
+    public ItemStack getItemStack() {
+        return getItemStack(false);
+    }
+
     public ItemStack getItemStack(boolean visibleBlockId) {
         NBTItem nbtc = new NBTItem(new ItemStack(cbItem != null ? cbItem : config.cbiMaterial));
         nbtc.mergeCompound(new NBTContainer(String.format("{CustomModelData: %s, display:{Name:'{\"translate\":\"%s\", \"italic\": false}'" + (visibleBlockId ? ", Lore: ['{\"text\": \"" + id + "\", \"color\": \"dark_gray\", \"italic\": false}']" : "") + "}, ItemId:\"%s\"}", itemModelData, "customblocks.item." + id + ".name", id)));
@@ -137,14 +140,14 @@ public class CustomBlock {
 
     public static void deserialize(Map<String, Object> deserialize) {
         try {
-            new CustomBlock(
+            REGISTRY.add(new CustomBlock(
                     (String) deserialize.get("id"),
                     (int) deserialize.get("itemModelData"),
                     Instrument.valueOf((String) deserialize.get("instrument")),
                     (int) deserialize.get("note"),
                     (boolean) deserialize.get("powered"),
                     deserialize.get("cbItem") != null ? Material.valueOf((String) deserialize.get("cbItem")) : null
-            );
+            ));
         } catch (Exception e) {
             e.printStackTrace();
         }

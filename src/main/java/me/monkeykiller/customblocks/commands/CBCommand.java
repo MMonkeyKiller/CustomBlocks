@@ -40,7 +40,9 @@ public class CBCommand extends BaseCommand {
         } else if (args[0].equalsIgnoreCase("add")) {
             if (args.length < 5) return false;
             try {
-                config.blocks.add(new CustomBlock(args[1], parseInt(args[2]), Instrument.valueOf(args[3]), parseInt(args[4]), args[5].equalsIgnoreCase("true")).serialize());
+                CustomBlock cb = new CustomBlock(args[1], parseInt(args[2]), Instrument.valueOf(args[3]), parseInt(args[4]), args[5].equalsIgnoreCase("true"));
+                CustomBlock.REGISTRY.add(cb);
+                config.blocks.add(cb.serialize());
                 sender.sendMessage(CBPlugin.colorify(config.prefixes.prefix + "Block " + args[1] + " added sucessfully"));
             } catch (Exception e) {
                 e.printStackTrace();

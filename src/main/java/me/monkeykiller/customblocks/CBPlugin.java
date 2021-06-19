@@ -1,5 +1,6 @@
 package me.monkeykiller.customblocks;
 
+import me.monkeykiller.customblocks.api.CBLoadEvent;
 import me.monkeykiller.customblocks.commands.BaseCommand;
 import me.monkeykiller.customblocks.commands.CBCommand;
 import me.monkeykiller.customblocks.commands.CBMenu;
@@ -20,13 +21,6 @@ public final class CBPlugin extends JavaPlugin {
 
     public PluginDescriptionFile pdfFile = getDescription();
 
-    public static class pluginInfo {
-        public static String name = CBPlugin.plugin.pdfFile.getPrefix() != null ?
-                CBPlugin.plugin.pdfFile.getPrefix() :
-                CBPlugin.plugin.pdfFile.getName();
-        public static String version = CBPlugin.plugin.pdfFile.getVersion();
-    }
-
     public PluginManager pm = Bukkit.getPluginManager();
     public WEListener weListener;
 
@@ -46,7 +40,8 @@ public final class CBPlugin extends JavaPlugin {
         if (config.debug_mode)
             weListener.loadWE();
 
-        System.out.println(config.prefixes.prefix + "Plugin enabled (v." + pluginInfo.version + ")");
+        System.out.println(config.prefixes.prefix + "Plugin enabled (v." + pdfFile.getVersion() + ")");
+        Bukkit.getPluginManager().callEvent(new CBLoadEvent(false));
     }
 
     @Override
