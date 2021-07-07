@@ -1,6 +1,5 @@
 package me.monkeykiller.customblocks;
 
-import com.google.gson.Gson;
 import de.tr7zw.nbtapi.NBTItem;
 import me.monkeykiller.customblocks.config.config;
 import me.monkeykiller.customblocks.utils.ItemUtils;
@@ -32,7 +31,7 @@ public class CustomBlock {
 
     public CustomBlock(@NotNull String id, int itemModelData, @NotNull Instrument instrument, int note, boolean powered, @Nullable Material material) throws Exception {
         Validate.isTrue(getCustomBlockbyId(id) == null, String.format("CustomBlock with id \"%s\" already exists!", id));
-        Validate.isTrue(getCustomBlockbyData(instrument, note, powered) == null, "CustomBlock with id \"" + id + "\" has the same data as \"" + Objects.requireNonNull(getCustomBlockbyData(instrument, note, powered)).getId() + "\"");
+        //Validate.isTrue(getCustomBlockbyData(instrument, note, powered) == null, "CustomBlock with id \"" + id + "\" has the same data as \"" + Objects.requireNonNull(getCustomBlockbyData(instrument, note, powered)).getId() + "\"");
 
         this.id = id;
         this.itemModelData = itemModelData;
@@ -84,10 +83,10 @@ public class CustomBlock {
 
     public ItemStack getItemStack(boolean visibleBlockId) {
         NBTItem nbtc = new NBTItem(new ItemStack(material != null ? material : config.cbiMaterial));
-        nbtc.setString("display.Name", new Gson().toJson(new Object() {
-            final String translate = "customblocks.item." + id + ".name";
-            final boolean italic = false;
-        }));
+        nbtc.setString("ItemId", id);
+        nbtc.addCompound("display")
+                .setString("Name", String.format("{\"translate\":\"%s\", \"italic\": false}", "customblocks.item." + id + ".name"));
+
         ItemStack item = nbtc.getItem();
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
