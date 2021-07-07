@@ -1,9 +1,11 @@
 package me.monkeykiller.customblocks;
 
-import de.tr7zw.nbtapi.NBTContainer;
+import com.google.gson.Gson;
 import de.tr7zw.nbtapi.NBTItem;
 import me.monkeykiller.customblocks.config.config;
 import me.monkeykiller.customblocks.utils.ItemUtils;
+import me.monkeykiller.customblocks.utils.Utils;
+import org.apache.commons.lang.Validate;
 import org.bukkit.Instrument;
 import org.bukkit.Material;
 import org.bukkit.Note;
@@ -12,65 +14,36 @@ import org.bukkit.block.data.type.NoteBlock;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
+@SuppressWarnings("unused")
 public class CustomBlock {
     public static List<CustomBlock> REGISTRY = new ArrayList<>();
 
-    public String id;
-    public int itemModelData;
-    public Instrument instrument;
-    public int note;
-    public boolean powered;
+    private final String id;
+    private final int itemModelData, note;
+    private final Instrument instrument;
+    private final boolean powered;
+    private final Material material;
 
-    public Material cbItem = null;
-
-    public CustomBlock(@NotNull String id, int itemModelData, @NotNull Instrument instrument, int note, boolean powered) throws Exception {
-        if (getCustomBlockbyId(id) != null)
-            throw new Exception("CustomBlock with id \"" + id + "\" already exists!");
-        if (getCustomBlockbyData(instrument, note, powered) != null)
-            throw new Exception("CustomBlock with id \"" + id + "\" has the same data as \"" + Objects.requireNonNull(getCustomBlockbyData(instrument, note, powered)).id + "\"");
+    public CustomBlock(@NotNull String id, int itemModelData, @NotNull Instrument instrument, int note, boolean powered, @Nullable Material material) throws Exception {
+        Validate.isTrue(getCustomBlockbyId(id) == null, String.format("CustomBlock with id \"%s\" already exists!", id));
+        Validate.isTrue(getCustomBlockbyData(instrument, note, powered) == null, "CustomBlock with id \"" + id + "\" has the same data as \"" + Objects.requireNonNull(getCustomBlockbyData(instrument, note, powered)).getId() + "\"");
 
         this.id = id;
         this.itemModelData = itemModelData;
         this.instrument = instrument;
         this.note = note;
         this.powered = powered;
+        this.material = material;
     }
 
-    public CustomBlock(@NotNull String id, int itemModelData, @NotNull Instrument instrument, int note, boolean powered, @Nullable Material cbItem) throws Exception {
-        this(id, itemModelData, instrument, note, powered);
-        if (cbItem != null)
-            this.cbItem = cbItem;
-    }
-
-    public static CustomBlock getCustomBlockbyId(String id) {
-        for (CustomBlock CB : REGISTRY)
-            if (CB.id.equalsIgnoreCase(id)) return CB;
-        return null;
-    }
-
-    public static CustomBlock getCustomBlockbyItem(@NotNull ItemStack item) {
-        String itemId = ItemUtils.getItemId(item);
-        if (itemId == null) return null;
-        return getCustomBlockbyId(itemId);
-    }
-
-    public static CustomBlock getCustomBlockbyData(NoteBlock data) {
-        for (CustomBlock CB : REGISTRY)
-            if (CB.compareData(data))
-                return CB;
-        return null;
-    }
-
-    public static CustomBlock getCustomBlockbyData(@NotNull Instrument instrument, int note, boolean powered) {
-        for (CustomBlock CB : REGISTRY)
-            if (CB.compareData(instrument, note, powered))
-                return CB;
-        return null;
+    public CustomBlock(@NotNull String id, int itemModelData, @NotNull Instrument instrument, int note, boolean powered) throws Exception {
+        this(id, itemModelData, instrument, note, powered, null);
     }
 
     public void place(BlockPlaceEvent event) {
@@ -110,15 +83,72 @@ public class CustomBlock {
     }
 
     public ItemStack getItemStack(boolean visibleBlockId) {
-        NBTItem nbtc = new NBTItem(new ItemStack(cbItem != null ? cbItem : config.cbiMaterial));
-        nbtc.mergeCompound(new NBTContainer(String.format("{CustomModelData: %s, display:{Name:'{\"translate\":\"%s\", \"italic\": false}'" + (visibleBlockId ? ", Lore: ['{\"text\": \"" + id + "\", \"color\": \"dark_gray\", \"italic\": false}']" : "") + "}, ItemId:\"%s\"}", itemModelData, "customblocks.item." + id + ".name", id)));
-        return nbtc.getItem();
+        NBTItem nbtc = new NBTItem(new ItemStack(material != null ? material : config.cbiMaterial));
+        nbtc.setString("display.Name", new Gson().toJson(new Object() {
+            final String translate = "customblocks.item." + id + ".name";
+            final boolean italic = false;
+        }));
+        ItemStack item = nbtc.getItem();
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.setCustomModelData(itemModelData);
+            if (visibleBlockId) meta.setLore(Collections.singletonList(Utils.colorize("&r&8" + id)));
+        }
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public Material getMaterial() {
+        return material;
+    }
+
+    public int getNote() {
+        return note;
+    }
+
+    public Instrument getInstrument() {
+        return instrument;
+    }
+
+    public boolean isPowered() {
+        return powered;
+    }
+
+    ////
+
+    public static CustomBlock getCustomBlockbyId(String id) {
+        for (CustomBlock CB : REGISTRY)
+            if (CB.id.equalsIgnoreCase(id)) return CB;
+        return null;
+    }
+
+    public static CustomBlock getCustomBlockbyItem(@NotNull ItemStack item) {
+        String itemId = ItemUtils.getItemId(item);
+        if (itemId != null) return getCustomBlockbyId(itemId);
+        return null;
+    }
+
+    public static CustomBlock getCustomBlockbyData(NoteBlock data) {
+        for (CustomBlock CB : REGISTRY)
+            if (CB.compareData(data))
+                return CB;
+        return null;
+    }
+
+    public static CustomBlock getCustomBlockbyData(@NotNull Instrument instrument, int note, boolean powered) {
+        for (CustomBlock CB : REGISTRY)
+            if (CB.compareData(instrument, note, powered))
+                return CB;
+        return null;
     }
 
     public static boolean isCustomBlock(Block b) {
-        assert b.getBlockData() instanceof NoteBlock;
-        NoteBlock data = (NoteBlock) b.getBlockData();
-        return !data.getNote().equals(new Note(0));
+        if (!(b.getBlockData() instanceof NoteBlock)) return false;
+        return !((NoteBlock) b.getBlockData()).getNote().equals(new Note(0));
     }
 
     public static boolean isCustomBlock(String id) {
@@ -134,7 +164,8 @@ public class CustomBlock {
         serialized.put("note", this.note);
         serialized.put("powered", this.powered);
 
-        if (this.cbItem != null) serialized.put("cbItem", cbItem);
+        if (this.material != null)
+            serialized.put("cbItem", material);
         return serialized;
     }
 

@@ -2,7 +2,6 @@
 
 | IDEA | IMPORTANCE LEVEL |
 |------|-----|
-| ~~Create an API~~ | ~~3~~ |
 | Make cblocks custom mine speed | 2 |
 | Make cblocks piston movable | 2 |
 | Multi NMS Compatibility | 1 |

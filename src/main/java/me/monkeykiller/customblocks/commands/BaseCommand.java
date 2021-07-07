@@ -43,7 +43,6 @@ public class BaseCommand implements TabExecutor {
     }
 
 
-
     public static BaseCommand getCommand(String cmd) {
         for (BaseCommand command : REGISTRY)
             if (cmd.equalsIgnoreCase(command.name) || command.aliases.contains(cmd.toLowerCase()))

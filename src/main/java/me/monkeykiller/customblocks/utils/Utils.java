@@ -1,5 +1,6 @@
 package me.monkeykiller.customblocks.utils;
 
+import org.bukkit.ChatColor;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.util.RayTraceResult;
@@ -14,6 +15,10 @@ public class Utils {
         if (rtr == null || rtr.getHitBlock() == null) return null;
         return rtr.getHitPosition().subtract(rtr.getHitBlock().getLocation().toVector())
                 .toLocation(start.getWorld());
+    }
+
+    public static String colorize(@NotNull String text) {
+        return ChatColor.translateAlternateColorCodes('&', text);
     }
 }
 

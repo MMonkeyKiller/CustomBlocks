@@ -3,6 +3,7 @@ package me.monkeykiller.customblocks.commands;
 import me.monkeykiller.customblocks.CBPlugin;
 import me.monkeykiller.customblocks.CustomBlock;
 import me.monkeykiller.customblocks.config.config;
+import me.monkeykiller.customblocks.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Instrument;
@@ -34,8 +35,8 @@ public class CBCommand extends BaseCommand {
 
         if (args[0].equalsIgnoreCase("reload")) {
             CBPlugin.configData.reloadConfig(); // /cb reload issue FIX
-            sender.sendMessage(CBPlugin.colorify(config.prefixes.prefix + "&aConfiguration reloaded!"));
-            Bukkit.getLogger().info(CBPlugin.colorify(config.prefixes.prefix + "&aConfiguration reloaded!"));
+            sender.sendMessage(Utils.colorize(config.prefixes.prefix + "&aConfiguration reloaded!"));
+            Bukkit.getLogger().info(Utils.colorize(config.prefixes.prefix + "&aConfiguration reloaded!"));
             return true;
         } else if (args[0].equalsIgnoreCase("add")) {
             if (args.length < 5) return false;
@@ -43,10 +44,10 @@ public class CBCommand extends BaseCommand {
                 CustomBlock cb = new CustomBlock(args[1], parseInt(args[2]), Instrument.valueOf(args[3]), parseInt(args[4]), args[5].equalsIgnoreCase("true"));
                 CustomBlock.REGISTRY.add(cb);
                 config.blocks.add(cb.serialize());
-                sender.sendMessage(CBPlugin.colorify(config.prefixes.prefix + "Block " + args[1] + " added sucessfully"));
+                sender.sendMessage(Utils.colorize(config.prefixes.prefix + "Block " + args[1] + " added sucessfully"));
             } catch (Exception e) {
                 e.printStackTrace();
-                sender.sendMessage(CBPlugin.colorify(config.prefixes.prefix + "Block " + args[1] + " cannot be added, please check the logs"));
+                sender.sendMessage(Utils.colorize(config.prefixes.prefix + "Block " + args[1] + " cannot be added, please check the logs"));
                 return false;
             }
             CBPlugin.configData.saveBlocks();
@@ -71,7 +72,7 @@ public class CBCommand extends BaseCommand {
                     return null;
                 if (args[0].equalsIgnoreCase("add"))
                     return Arrays.asList(
-                            CustomBlock.REGISTRY.stream().map(cb -> cb.id).collect(Collectors.toList()),    // block id
+                            CustomBlock.REGISTRY.stream().map(CustomBlock::getId).collect(Collectors.toList()),    // block id
                             Collections.singletonList("(example) 0"), // itemModelData
                             Arrays.stream(Instrument.values()).map(Enum::toString).collect(Collectors.toList()),           // instruments
                             allPitchNumbers(),  // note

@@ -47,7 +47,7 @@ public class WEListener implements Listener {
         if (!CustomBlock.isCustomBlock(CBId)) return;
         CustomBlock CB = CustomBlock.getCustomBlockbyId(CBId);
         assert CB != null;
-        String id = String.format("%s[note=%s,instrument=%s,powered=%s]", Material.NOTE_BLOCK.toString().toLowerCase(), CB.note, CB.instrument.toString().toLowerCase(), CB.powered ? "true" : "false");
+        String id = String.format("%s[note=%s,instrument=%s,powered=%s]", Material.NOTE_BLOCK.toString().toLowerCase(), CB.getNote(), CB.getInstrument().toString().toLowerCase(), CB.isPowered() ? "true" : "false");
         event.setMessage(message.replace(CBId, id));
     }
 

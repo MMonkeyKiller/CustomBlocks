@@ -34,8 +34,8 @@ public class Parser extends InputParser {
 
     public Stream getSuggestions(String s) {
         return s.isEmpty() ? Stream.empty() : CustomBlock.REGISTRY.stream()
-                .filter(CB -> CB.id.contains(s.toLowerCase()))
-                .map(CB -> CB.id)
+                .map(CustomBlock::getId)
+                .filter(CB -> CB.contains(s.toLowerCase()))
                 .sorted(String::compareToIgnoreCase);
     }
 

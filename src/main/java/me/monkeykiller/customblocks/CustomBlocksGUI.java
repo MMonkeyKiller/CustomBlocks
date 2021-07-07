@@ -3,7 +3,9 @@ package me.monkeykiller.customblocks;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import me.monkeykiller.customblocks.config.config;
+import me.monkeykiller.customblocks.utils.Utils;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -32,13 +34,13 @@ public class CustomBlocksGUI {
 
         page = Math.max(1, Math.min(page, totalPages)); // Set page range to 1 >= page >= totalPages
 
-        Inventory inv = Bukkit.createInventory(null, 9 * 6, config.cbksGUITitle + CBPlugin.colorify(" [" + page + "/" + totalPages + "]"));
+        Inventory inv = Bukkit.createInventory(null, 9 * 6, config.cbksGUITitle + Utils.colorize(" [" + page + "/" + totalPages + "]"));
 
         for (int i = (9 * 5); i < (9 * 6); i++) {
             ItemStack item = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
             ItemMeta meta = item.getItemMeta();
             assert meta != null;
-            meta.setDisplayName(CBPlugin.colorify("&r"));
+            meta.setDisplayName(ChatColor.RESET + "");
             item.setItemMeta(meta);
             inv.setItem(i, item);
         }
@@ -67,7 +69,7 @@ public class CustomBlocksGUI {
 
         assert item.getItemMeta() != null;
         SkullMeta meta = getSkullMetaTextureByB64(((SkullMeta) item.getItemMeta()), texture);
-        meta.setDisplayName(CBPlugin.colorify("&aBack"));
+        meta.setDisplayName(Utils.colorize("&aBack"));
         item.setItemMeta(meta);
         return item;
     }
@@ -78,8 +80,8 @@ public class CustomBlocksGUI {
 
         assert item.getItemMeta() != null;
         SkullMeta meta = getSkullMetaTextureByB64(((SkullMeta) item.getItemMeta()), texture);
-        meta.setDisplayName(CBPlugin.colorify("&aPage " + page + "/" + totalPages));
-        meta.setLore(Collections.singletonList(CBPlugin.colorify("&a&lLeft Click &r&8Go back to page 1")));
+        meta.setDisplayName(Utils.colorize("&aPage " + page + "/" + totalPages));
+        meta.setLore(Collections.singletonList(Utils.colorize("&a&lLeft Click &r&8Go back to page 1")));
         item.setItemMeta(meta);
         return item;
     }
@@ -90,7 +92,7 @@ public class CustomBlocksGUI {
 
         assert item.getItemMeta() != null;
         SkullMeta meta = getSkullMetaTextureByB64(((SkullMeta) item.getItemMeta()), texture);
-        meta.setDisplayName(CBPlugin.colorify("&aNext"));
+        meta.setDisplayName(Utils.colorize("&aNext"));
         item.setItemMeta(meta);
         return item;
     }

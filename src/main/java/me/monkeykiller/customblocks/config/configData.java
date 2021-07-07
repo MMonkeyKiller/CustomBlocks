@@ -3,6 +3,7 @@ package me.monkeykiller.customblocks.config;
 import me.monkeykiller.customblocks.CBPlugin;
 import me.monkeykiller.customblocks.CustomBlock;
 import me.monkeykiller.customblocks.api.CBLoadEvent;
+import me.monkeykiller.customblocks.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -61,7 +62,7 @@ public class configData {
             config.blocks.forEach(CustomBlock::deserialize);
             System.out.println(config.prefixes.prefix + "Loaded " + CustomBlock.REGISTRY.size() + " Custom Blocks");
             CustomBlock.REGISTRY.stream()
-                    .map(cb -> " - " + cb.id + (cb.cbItem != null ? " (" + cb.cbItem + ")" : ""))
+                    .map(cb -> " - " + cb.getId() + (cb.getMaterial() != null ? " (" + cb.getMaterial() + ")" : ""))
                     .forEach(System.out::println);
         } catch (Exception e) {
             e.printStackTrace();
@@ -89,7 +90,7 @@ public class configData {
         if (!config().contains(configKey)) throw new ConfigException(configKey, "Config not found");
         if (!config().isString(configKey))
             throw new ConfigException(configKey, "Invalid config type, Expected: String");
-        return CBPlugin.colorify(config().getString(configKey));
+        return Utils.colorize("" + config().getString(configKey));
     }
 
     public static class ConfigException extends Exception {

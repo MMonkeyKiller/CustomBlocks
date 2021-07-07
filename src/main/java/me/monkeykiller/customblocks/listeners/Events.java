@@ -209,11 +209,10 @@ public class Events extends BaseEvent {
         if (event.getBlock().getType() != Material.NOTE_BLOCK
                 || event.getPlayer().getGameMode().equals(GameMode.CREATIVE))
             return;
-
         if (event.isCancelled()) return;
         NoteBlock NBData = (NoteBlock) event.getBlock().getBlockData();
         CustomBlock CB = CustomBlock.getCustomBlockbyData(NBData);
-        assert CB != null;
+        if (CB == null) return;
         event.setDropItems(false);
         event.setExpToDrop(0);
         CB.mine(event);
