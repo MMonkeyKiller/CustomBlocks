@@ -1,11 +1,10 @@
 package me.monkeykiller.customblocks.commands;
 
-import me.monkeykiller.customblocks.CBPlugin;
+import me.monkeykiller.customblocks.CustomBlocksPlugin;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabExecutor;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,7 +21,7 @@ public class BaseCommand implements TabExecutor {
     public BaseCommand(@NotNull String name, @Nullable List<String> aliases) {
         this.name = name;
         this.aliases = aliases;
-        PluginCommand cmd = CBPlugin.plugin.getCommand(name);
+        PluginCommand cmd = CustomBlocksPlugin.plugin.getCommand(name);
         assert cmd != null;
         cmd.setExecutor(this);
         cmd.setTabCompleter(this);
@@ -39,7 +38,7 @@ public class BaseCommand implements TabExecutor {
     }
 
     public PluginCommand parseCommand() {
-        return CBPlugin.plugin.getCommand(name);
+        return CustomBlocksPlugin.plugin.getCommand(name);
     }
 
 
@@ -48,10 +47,6 @@ public class BaseCommand implements TabExecutor {
             if (cmd.equalsIgnoreCase(command.name) || command.aliases.contains(cmd.toLowerCase()))
                 return command;
         return null;
-    }
-
-    public static boolean hasPermission(CommandSender sender, String permission, boolean op) {
-        return !(sender instanceof Player) || ((((Player) sender).hasPermission(permission) || op) && ((Player) sender).isOp());
     }
 
 }

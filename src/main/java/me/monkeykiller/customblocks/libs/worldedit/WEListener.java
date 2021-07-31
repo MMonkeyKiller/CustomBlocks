@@ -5,8 +5,8 @@ import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.event.extent.EditSessionEvent;
 import com.sk89q.worldedit.util.eventbus.EventHandler.Priority;
 import com.sk89q.worldedit.util.eventbus.Subscribe;
-import me.monkeykiller.customblocks.CBPlugin;
-import me.monkeykiller.customblocks.CustomBlock;
+import me.monkeykiller.customblocks.CustomBlocksPlugin;
+import me.monkeykiller.customblocks.blocks.CustomBlock;
 import me.monkeykiller.customblocks.config.config;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -23,7 +23,7 @@ public class WEListener implements Listener {
     public void loadWE() {
         WorldEdit.getInstance().getEventBus().register(this);
         WorldEdit.getInstance().getBlockFactory().register(new Parser(WorldEdit.getInstance()));
-        Bukkit.getPluginManager().registerEvents(this, CBPlugin.plugin);
+        Bukkit.getPluginManager().registerEvents(this, CustomBlocksPlugin.plugin);
     }
 
     public void unloadWE() {
@@ -47,7 +47,7 @@ public class WEListener implements Listener {
         if (!CustomBlock.isCustomBlock(CBId)) return;
         CustomBlock CB = CustomBlock.getCustomBlockbyId(CBId);
         assert CB != null;
-        String id = String.format("%s[note=%s,instrument=%s,powered=%s]", Material.NOTE_BLOCK.toString().toLowerCase(), CB.getNote(), CB.getInstrument().toString().toLowerCase(), CB.isPowered() ? "true" : "false");
+        String id = String.format("%s[note=%s,instrument=%s,powered=%s]", Material.NOTE_BLOCK.toString().toLowerCase(), CB.getData().getNote(), CB.getData().getInstrument().toString().toLowerCase(), CB.getData().getPowered() ? "true" : "false");
         event.setMessage(message.replace(CBId, id));
     }
 

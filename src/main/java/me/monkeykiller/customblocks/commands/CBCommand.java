@@ -1,7 +1,7 @@
 package me.monkeykiller.customblocks.commands;
 
-import me.monkeykiller.customblocks.CBPlugin;
-import me.monkeykiller.customblocks.CustomBlock;
+import me.monkeykiller.customblocks.CustomBlocksPlugin;
+import me.monkeykiller.customblocks.blocks.CustomBlock;
 import me.monkeykiller.customblocks.config.config;
 import me.monkeykiller.customblocks.utils.Utils;
 import org.bukkit.Bukkit;
@@ -28,13 +28,13 @@ public class CBCommand extends BaseCommand {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (args.length < 1) return false;
-        if (!BaseCommand.hasPermission(sender, "customblocks.command.customblocks", true)) {
+        if (!sender.hasPermission("customblocks.command.customblocks")) {
             sender.sendMessage(ChatColor.RED + "You don't have permission to use this command (" + ChatColor.GOLD + "customblocks.command.customblocks" + ChatColor.RED + ")");
             return false;
         }
 
         if (args[0].equalsIgnoreCase("reload")) {
-            CBPlugin.configData.reloadConfig(); // /cb reload issue FIX
+            CustomBlocksPlugin.configData.reloadConfig();
             sender.sendMessage(Utils.colorize(config.prefixes.prefix + "&aConfiguration reloaded!"));
             Bukkit.getLogger().info(Utils.colorize(config.prefixes.prefix + "&aConfiguration reloaded!"));
             return true;
@@ -42,7 +42,7 @@ public class CBCommand extends BaseCommand {
             if (args.length < 5) return false;
             try {
                 CustomBlock cb = new CustomBlock(args[1], parseInt(args[2]), Instrument.valueOf(args[3]), parseInt(args[4]), args[5].equalsIgnoreCase("true"));
-                CustomBlock.REGISTRY.add(cb);
+                CustomBlock.register(cb, false);
                 config.blocks.add(cb.serialize());
                 sender.sendMessage(Utils.colorize(config.prefixes.prefix + "Block " + args[1] + " added sucessfully"));
             } catch (Exception e) {
@@ -50,7 +50,7 @@ public class CBCommand extends BaseCommand {
                 sender.sendMessage(Utils.colorize(config.prefixes.prefix + "Block " + args[1] + " cannot be added, please check the logs"));
                 return false;
             }
-            CBPlugin.configData.saveBlocks();
+            CustomBlocksPlugin.configData.saveBlocks();
             return true;
         } else {
             sender.sendMessage(ChatColor.RED + "Usage: /customblocks <add/reload>");
@@ -60,7 +60,7 @@ public class CBCommand extends BaseCommand {
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-        if (!BaseCommand.hasPermission(sender, "customblocks.command.customblocks", true))
+        if (!sender.hasPermission("customblocks.command.customblocks"))
             return null;
         switch (args.length) {
             case 0:
@@ -72,7 +72,7 @@ public class CBCommand extends BaseCommand {
                     return null;
                 if (args[0].equalsIgnoreCase("add"))
                     return Arrays.asList(
-                            CustomBlock.REGISTRY.stream().map(CustomBlock::getId).collect(Collectors.toList()),    // block id
+                            CustomBlock.getRegistry().stream().map(CustomBlock::getId).collect(Collectors.toList()),    // block id
                             Collections.singletonList("(example) 0"), // itemModelData
                             Arrays.stream(Instrument.values()).map(Enum::toString).collect(Collectors.toList()),           // instruments
                             allPitchNumbers(),  // note

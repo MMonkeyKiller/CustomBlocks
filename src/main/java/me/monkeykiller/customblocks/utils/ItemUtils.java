@@ -1,8 +1,11 @@
 package me.monkeykiller.customblocks.utils;
 
+import de.tr7zw.nbtapi.NBTCompound;
 import de.tr7zw.nbtapi.NBTItem;
-import me.monkeykiller.customblocks.CustomBlock;
+import me.monkeykiller.customblocks.blocks.CustomBlock;
 import me.monkeykiller.customblocks.config.config;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -27,8 +30,14 @@ public class ItemUtils {
                 : inv.getItemInOffHand().equals(item) ? EquipmentSlot.OFF_HAND : null;
     }
 
-    public static String getItemId(ItemStack item) {
-        return item != null ? new NBTItem(item).getString("ItemId") : null;
+    public static String getItemId(@NotNull ItemStack item) {
+        return new NBTItem(item).getString("ItemId");
+    }
+
+    public static ItemStack setItemId(@NotNull ItemStack item, @NotNull String id) {
+        NBTItem nbti = new NBTItem(item);
+        nbti.setString("ItemId", id);
+        return nbti.getItem();
     }
 
     public static ItemStack getFirstCustomBlockInHand(@NotNull PlayerInventory inv) {
@@ -42,5 +51,12 @@ public class ItemUtils {
             if (i.getType() == expected) return i;
         }
         return null;
+    }
+
+    public static ItemStack setComponentName(@NotNull ItemStack item, @NotNull BaseComponent[] component) {
+        NBTItem nbti = new NBTItem(item);
+        NBTCompound display = nbti.getOrCreateCompound("display");
+        display.setString("Name", ComponentSerializer.toString(component));
+        return nbti.getItem();
     }
 }

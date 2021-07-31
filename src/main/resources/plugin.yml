@@ -1,9 +1,9 @@
 name: CustomBlocks
 version: ${project.version}
-main: me.monkeykiller.customblocks.CBPlugin
+main: me.monkeykiller.customblocks.CustomBlocksPlugin
 api-version: 1.16
 authors: [ MonkeyKiller ]
-website: https://github.com/MMonkeyKiller
+website: https://github.com/MMonkeyKiller/CustomBlocks
 depend: [ NBTAPI ]
 softdepend: [ WorldEdit ]
 
@@ -14,6 +14,6 @@ commands:
     permission: customblocks.command.customblocks
   cblocks:
     aliases: cbks
-    description: Get all custom blocks
+    description: Opens a GUI containing all the registered customblocks
     permission: customblocks.command.cblocks
 

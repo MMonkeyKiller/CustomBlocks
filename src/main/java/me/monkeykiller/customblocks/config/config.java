@@ -14,6 +14,5 @@ public class config {
     }
     public static String cbksGUITitle;
     public static Material cbiMaterial;
-    public static List<Material> clickable = new ArrayList<>();
     public static List<Map<String, Object>> blocks = new ArrayList<>();
 }

@@ -13,7 +13,7 @@ import com.sk89q.worldedit.world.block.BaseBlock;
 import com.sk89q.worldedit.world.block.BlockState;
 import com.sk89q.worldedit.world.block.BlockType;
 import com.sk89q.worldedit.world.block.BlockTypes;
-import me.monkeykiller.customblocks.CustomBlock;
+import me.monkeykiller.customblocks.blocks.CustomBlock;
 import org.bukkit.block.BlockFace;
 
 import java.lang.reflect.Constructor;
@@ -33,7 +33,7 @@ public class Parser extends InputParser {
     }
 
     public Stream getSuggestions(String s) {
-        return s.isEmpty() ? Stream.empty() : CustomBlock.REGISTRY.stream()
+        return s.isEmpty() ? Stream.empty() : CustomBlock.getRegistry().stream()
                 .map(CustomBlock::getId)
                 .filter(CB -> CB.contains(s.toLowerCase()))
                 .sorted(String::compareToIgnoreCase);

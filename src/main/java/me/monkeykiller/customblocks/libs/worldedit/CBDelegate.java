@@ -9,8 +9,8 @@ import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.world.block.BaseBlock;
 import com.sk89q.worldedit.world.block.BlockState;
 import com.sk89q.worldedit.world.block.BlockStateHolder;
-import me.monkeykiller.customblocks.CustomBlock;
-import me.monkeykiller.customblocks.CBPlugin;
+import me.monkeykiller.customblocks.CustomBlocksPlugin;
+import me.monkeykiller.customblocks.blocks.CustomBlock;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -56,7 +56,7 @@ public class CBDelegate extends AbstractDelegateExtent {
                 CustomBlock CB = CustomBlock.getCustomBlockbyId(id);
                 if (CB == null) return true;
                 CB.place(loc.getBlock());
-                Bukkit.getScheduler().runTaskLater(CBPlugin.plugin, () -> player.sendBlockChange(loc, loc.getBlock().getBlockData()), 5L);
+                Bukkit.getScheduler().runTaskLater(CustomBlocksPlugin.plugin, () -> player.sendBlockChange(loc, loc.getBlock().getBlockData()), 5L);
             } catch (Exception e) {
                 e.printStackTrace();
             }

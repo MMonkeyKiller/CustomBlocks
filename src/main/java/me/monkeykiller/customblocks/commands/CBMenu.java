@@ -23,7 +23,7 @@ public class CBMenu extends BaseCommand {
             sender.sendMessage(ChatColor.RED + "You're not a player!");
             return false;
         }
-        if (!BaseCommand.hasPermission(sender, "customblocks.command.cblocks", true)) {
+        if (!sender.hasPermission("customblocks.command.cblocks")) {
             sender.sendMessage(ChatColor.RED + "You don't have permission to use this command (" + ChatColor.GOLD + "customblocks.command.cblocks" + ChatColor.RED + ")");
             return false;
         }
@@ -33,6 +33,6 @@ public class CBMenu extends BaseCommand {
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-        return null;
+        return Collections.emptyList();
     }
 }

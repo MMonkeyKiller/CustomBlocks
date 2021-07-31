@@ -1,4 +1,4 @@
-package me.monkeykiller.customblocks;
+package me.monkeykiller.customblocks.blocks;
 
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -6,5 +6,5 @@ import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
 public interface Interactable {
-    public void onInteract(@NotNull Player player, @NotNull Block block);
+    void onInteract(@NotNull Player player, @NotNull Block block);
 }

@@ -1,8 +1,8 @@
 package me.monkeykiller.customblocks.config;
 
-import me.monkeykiller.customblocks.CBPlugin;
-import me.monkeykiller.customblocks.CustomBlock;
-import me.monkeykiller.customblocks.api.CBLoadEvent;
+import me.monkeykiller.customblocks.CustomBlocksPlugin;
+import me.monkeykiller.customblocks.api.CustomBlocksLoadEvent;
+import me.monkeykiller.customblocks.blocks.CustomBlock;
 import me.monkeykiller.customblocks.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -10,16 +10,13 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-
-import static me.monkeykiller.customblocks.config.config.clickable;
 
 @SuppressWarnings("unchecked")
 public class configData {
-    protected static CBPlugin plugin;
-    public void setPlugin(CBPlugin javaPlugin) {
+    protected static CustomBlocksPlugin plugin;
+
+    public void setPlugin(CustomBlocksPlugin javaPlugin) {
         plugin = javaPlugin;
     }
 
@@ -37,8 +34,6 @@ public class configData {
                 System.out.println(config.prefixes.warn + "debug_mode has been enabled.");
 
             config.cbiMaterial = Material.valueOf(config().getString("cb_item_material"));
-
-            loadClickableMaterials();
             loadBlocks();
 
         } catch (Exception ex) {
@@ -46,7 +41,7 @@ public class configData {
             System.out.println(config.prefixes.warn + "An exception ocurred while loading config.yml, disabling plugin\n");
             Bukkit.getPluginManager().disablePlugin(plugin);
         }
-        Bukkit.getPluginManager().callEvent(new CBLoadEvent(reloaded));
+        Bukkit.getPluginManager().callEvent(new CustomBlocksLoadEvent(reloaded));
     }
 
     public void reloadConfig() {
@@ -57,11 +52,11 @@ public class configData {
     public void loadBlocks() {
         try {
             config.blocks = (ArrayList<Map<String, Object>>) config().getList("blocks");
-            CustomBlock.REGISTRY.clear();
+            CustomBlock.clear();
             assert config.blocks != null && !config.blocks.isEmpty();
             config.blocks.forEach(CustomBlock::deserialize);
-            System.out.println(config.prefixes.prefix + "Loaded " + CustomBlock.REGISTRY.size() + " Custom Blocks");
-            CustomBlock.REGISTRY.stream()
+            System.out.println(config.prefixes.prefix + "Loaded " + CustomBlock.getRegistry().size() + " Custom Blocks");
+            CustomBlock.getRegistry().stream()
                     .map(cb -> " - " + cb.getId() + (cb.getMaterial() != null ? " (" + cb.getMaterial() + ")" : ""))
                     .forEach(System.out::println);
         } catch (Exception e) {
@@ -72,14 +67,6 @@ public class configData {
     public void saveBlocks() {
         config().set("blocks", config.blocks);
         plugin.saveConfig();
-    }
-
-    public void loadClickableMaterials() {
-        clickable.clear();
-        Objects.requireNonNull((List<String>) config().getList("clickable_materials")).stream()
-                .map(Material::valueOf)
-                .forEach(clickable::add);
-        System.out.println(config.prefixes.prefix + "Loaded " + clickable.size() + " Clickable Materials");
     }
 
     public static FileConfiguration config() {

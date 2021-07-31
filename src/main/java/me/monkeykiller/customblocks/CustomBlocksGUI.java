@@ -2,6 +2,7 @@ package me.monkeykiller.customblocks;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import me.monkeykiller.customblocks.blocks.CustomBlock;
 import me.monkeykiller.customblocks.config.config;
 import me.monkeykiller.customblocks.utils.Utils;
 import org.bukkit.Bukkit;
@@ -29,12 +30,11 @@ public class CustomBlocksGUI {
     }
 
     public static void open(@NotNull Player player, int page) {
-        int cbksCount = CustomBlock.REGISTRY.size(),
-                totalPages = getTotalPages();
+        int cbksCount = CustomBlock.getRegistry().size(), totalPages = getTotalPages();
 
         page = Math.max(1, Math.min(page, totalPages)); // Set page range to 1 >= page >= totalPages
 
-        Inventory inv = Bukkit.createInventory(null, 9 * 6, config.cbksGUITitle + Utils.colorize(" [" + page + "/" + totalPages + "]"));
+        Inventory inv = Bukkit.createInventory(null, 54, config.cbksGUITitle + Utils.colorize(" [" + page + "/" + totalPages + "]"));
 
         for (int i = (9 * 5); i < (9 * 6); i++) {
             ItemStack item = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
@@ -45,8 +45,9 @@ public class CustomBlocksGUI {
             inv.setItem(i, item);
         }
 
-        for (int invSlot = 0, cbksIndex = (page - 1) * (9 * 5); invSlot < (9 * 5) && cbksIndex < cbksCount; invSlot++, cbksIndex++)
-            inv.setItem(invSlot, CustomBlock.REGISTRY.get(cbksIndex).getItemStack(true));
+        for (int invSlot = 0, cbksIndex = (page - 1) * 45;
+             invSlot < 45 && cbksIndex < cbksCount; invSlot++, cbksIndex++)
+            inv.setItem(invSlot, CustomBlock.getRegistry().get(cbksIndex).getItemStack(true));
 
         inv.setItem(45, getBackBtn());
         inv.setItem(49, getInfoBtn(page, totalPages));
@@ -57,7 +58,7 @@ public class CustomBlocksGUI {
     }
 
     public static int getTotalPages() {
-        int cbksCount = CustomBlock.REGISTRY.size(),
+        int cbksCount = CustomBlock.getRegistry().size(),
                 totalPages = cbksCount / (9 * 5);    // 45 -> The max blocks per page
         if (cbksCount % (9 * 5) > 0) ++totalPages;   // extra page for the last items
         return totalPages;
@@ -100,9 +101,8 @@ public class CustomBlocksGUI {
     private static SkullMeta getSkullMetaTextureByB64(@NotNull SkullMeta meta, @NotNull String texture) {
         GameProfile profile = new GameProfile(UUID.randomUUID(), "");
         profile.getProperties().put("textures", new Property("textures", texture));
-        Field profileField;
         try {
-            profileField = meta.getClass().getDeclaredField("profile");
+            Field profileField = meta.getClass().getDeclaredField("profile");
             profileField.setAccessible(true);
             profileField.set(meta, profile);
         } catch (Exception e) {

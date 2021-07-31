@@ -5,16 +5,11 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
-public class CBLoadEvent extends Event {
+public class CustomBlocksLoadEvent extends Event {
     private static final HandlerList HANDLERS_LIST = new HandlerList();
     protected boolean reloaded;
 
-    /**
-     * It launches when the plugin config is loaded
-     *
-     * @param reloaded By /cb reload command
-     */
-    public CBLoadEvent(boolean reloaded) {
+    public CustomBlocksLoadEvent(boolean reloaded) {
         this.reloaded = reloaded;
     }
 
@@ -25,7 +20,8 @@ public class CBLoadEvent extends Event {
     //
 
     @Override
-    public @NotNull HandlerList getHandlers() {
+    @NotNull
+    public HandlerList getHandlers() {
         return HANDLERS_LIST;
     }
 
