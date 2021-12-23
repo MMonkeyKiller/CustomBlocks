@@ -4,7 +4,7 @@
 |------|-----|
 | Make cblocks custom mine speed | 2 |
 | Make cblocks piston movable | 2 |
-| Multi NMS Compatibility | 1 |
+| ~~Multi NMS Compatibility~~ | ~~1~~ |
 | Messages.yml (for prefixes, plugin messages) | 1 |
 | Make independent from nbtapi | 1 |
 

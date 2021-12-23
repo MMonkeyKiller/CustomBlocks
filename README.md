@@ -6,8 +6,10 @@ Custom Blocks for Spigot/PaperMC.
 
 This project is inspired on _Origin Realms_ Custom Block System
 
-**Only 1.16.5 (NMS, it can be changed later)\
-This plugin requires a resourcepack to load the textures `examples included as zip files`**
+The plugin requires **Java 8 or higher**. Supported versions: **1.14.x - 1.17.x**\
+`1.18.x is also supported, but it requires to use the latest snapshots of NBTAPI`
+
+**This plugin requires a resourcepack to load the textures `examples included as zip files`**
 
 The plugin contains an API to personalize the blocks at
 level-code. [More Info](https://github.com/MMonkeyKiller/CustomBlocks/wiki/EN_UsingTheAPI)
