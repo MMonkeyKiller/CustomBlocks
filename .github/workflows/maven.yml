@@ -19,7 +19,7 @@ jobs:
     - name: JDK Setup
       uses: actions/setup-java@v2
       with:
-        java-version: '8'
+        java-version: '16'
         distribution: 'adopt'
     - name: Build
       run: mvn -B package --file pom.xml
