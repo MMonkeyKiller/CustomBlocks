@@ -11,7 +11,9 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Bisected;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.*;
+import org.bukkit.block.data.type.Slab.Type;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.LivingEntity;
@@ -181,30 +183,32 @@ public class Events implements Listener {
         else if (!REPLACE.contains(pblock.getType())) return;
 
         if (ItemUtils.getFirstCustomBlockInHand(inv) != null) CBCooldown(event);
-        if (Tag.STAIRS.isTagged(item.getType())) {
+        else if (Tag.STAIRS.isTagged(item.getType())) {
             CustomBlocksPlugin.getNmsHandler().placeItem(player, item, pblock, slot);
             //nmsItem.placeItem(new ItemActionContext(human, hand, MOPB), hand);
-            Stairs data = ((Stairs) pblock.getBlockData());
+            if (!(pblock.getBlockData() instanceof Stairs)) return;
+            Stairs data = (Stairs) pblock.getBlockData();
             data.setHalf(point.getY() < .5d && point.getY() >= 0d
                     ? Bisected.Half.BOTTOM
                     : Bisected.Half.TOP);
             pblock.setBlockData(data);
         } else if (Tag.SLABS.isTagged(item.getType()) || pblock.getType().equals(item.getType())) {
-            Slab.Type dataType;
-            if (pblock.getType() == item.getType()) {
-                dataType = Slab.Type.DOUBLE;
-            } else {
+            Type dataType;
+            if (pblock.getType() == item.getType()) dataType = Type.DOUBLE;
+            else {
                 if ((point.getY() > 0d && point.getY() < .5d)
                         || point.getY() == 1d) {
-                    dataType = Slab.Type.BOTTOM;
-                } else dataType = Slab.Type.TOP;
+                    dataType = Type.BOTTOM;
+                } else dataType = Type.TOP;
                 CustomBlocksPlugin.getNmsHandler().placeItem(player, item, pblock, slot);
                 // nmsItem.placeItem(new ItemActionContext(human, hand, MOPB), hand);
             }
 
-            Slab data = (Slab) pblock.getBlockData();
-            data.setType(dataType);
-            pblock.setBlockData(data);
+            BlockData data = pblock.getBlockData();
+            if (data instanceof Slab) {
+                ((Slab) data).setType(dataType);
+                pblock.setBlockData(data);
+            }
         } else
             CustomBlocksPlugin.getNmsHandler().placeItem(player, item, pblock, slot);//nmsItem.placeItem(new ItemActionContext(human, hand, MOPB), hand);
     }
