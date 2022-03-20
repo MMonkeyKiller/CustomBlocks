@@ -60,6 +60,12 @@
             <version>v1_18_R1</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>me.monkeykiller</groupId>
+            <artifactId>customblocks-v1_18_R2</artifactId>
+            <version>v1_18_R2</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <properties>
