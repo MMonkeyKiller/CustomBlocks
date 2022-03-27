@@ -52,11 +52,10 @@ public class Events implements Listener {
                 bottomBlock.getState().update(true, false);
             }
             event.setCancelled(true);
+            //if (b.getType() == Material.NOTE_BLOCK) event.setCancelled(true);
+            if (!Tag.SIGNS.isTagged(b.getType()) && !b.getType().equals(Material.LECTERN) && !b.getType().toString().contains("BEE"))
+                b.getState().update(true, false);
         }
-        if (b.getType() == Material.NOTE_BLOCK) event.setCancelled(true);
-        if (!Tag.SIGNS.isTagged(b.getType()) &&
-                !b.getType().equals(Material.LECTERN))
-            b.getState().update(true, false);
     }
 
     @EventHandler
