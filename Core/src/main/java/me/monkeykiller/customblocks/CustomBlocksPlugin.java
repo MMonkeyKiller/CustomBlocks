@@ -10,6 +10,7 @@ import me.monkeykiller.customblocks.config.configData;
 import me.monkeykiller.customblocks.libs.worldedit.WEListener;
 import me.monkeykiller.customblocks.listeners.Events;
 import me.monkeykiller.customblocks.listeners.InventoryEvents;
+import me.monkeykiller.customblocks.nms.CommonNMSHandler;
 import me.monkeykiller.customblocks.nms.NMSHandler;
 import me.monkeykiller.customblocks.utils.Utils;
 import org.bukkit.Bukkit;
@@ -40,9 +41,15 @@ public final class CustomBlocksPlugin extends JavaPlugin {
         Utils.log(config.prefixes.prefix + "Loading NMS Handler...");
         nmsHandler = NMSHandler.getHandler(mcVersion, nmsVersion);
         if (nmsHandler == null) {
-            Utils.log(config.prefixes.prefix + Utils.colorize("&cNo NMSHandler loaded! Shutting down"));
-            Bukkit.getPluginManager().disablePlugin(this);
-            return;
+            Utils.log(config.prefixes.prefix + Utils.colorize("&cNo NMSHandler found! Using common one"));
+            try {
+                nmsHandler = new CommonNMSHandler();
+            } catch (Exception e) {
+                e.printStackTrace();
+                Utils.log(config.prefixes.prefix + Utils.colorize("&cCommonNMS can't support this version! Disabling plugin"));
+                Bukkit.getPluginManager().disablePlugin(this);
+                return;
+            }
         }
 
         setupCommands();

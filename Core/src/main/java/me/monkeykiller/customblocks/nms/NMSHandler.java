@@ -16,8 +16,7 @@ public abstract class NMSHandler {
             clazz = Class.forName(String.format("%s.NMS_%s", nmsPackage, nmsVersion));
             if (!NMSHandler.class.isAssignableFrom(clazz)) return null;
             return (NMSHandler) clazz.getConstructor().newInstance();
-        } catch (ClassNotFoundException e) {
-            Utils.log("Version not supported!");
+        } catch (ClassNotFoundException ignored) {
         } catch (Exception e) {
             e.printStackTrace();
         }
